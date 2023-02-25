@@ -1,6 +1,7 @@
 ﻿using Kitchen;
 using KitchenLib;
 using KitchenMods;
+using System;
 using System.Reflection;
 using Unity.Entities;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "0.1.3";
+        public const string MOD_VERSION = "0.1.5";
         public const string MOD_AUTHOR = "IcedMilo";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
@@ -24,9 +25,20 @@ namespace KitchenDragNDropDesigner
             // For log file output so the official plateup support staff can identify if/which a mod is being used
             LogWarning($"{MOD_GUID} v{MOD_VERSION} in use!");
 
-            World.GetExistingSystem<PickUpAndDropAppliance>().Enabled = false;
-            World.GetExistingSystem<RotateAppliances>().Enabled = false;
-            World.GetExistingSystem<RotateChairs>().Enabled = false;
+            if (Session.CurrentGameNetworkMode == GameNetworkMode.Host)
+            {
+                try
+                {
+                    World.GetExistingSystem<PickUpAndDropAppliance>().Enabled = false;
+                    World.GetExistingSystem<RotateAppliances>().Enabled = false;
+                    World.GetExistingSystem<RotateChairs>().Enabled = false;
+                    LogWarning("Disabled Vanilla Systems");
+                }
+                catch (NullReferenceException)
+                {
+                    LogWarning("Could not disable system! Are in you multiplayer as a non-host?");
+                }
+            }
         }
         
         protected override void OnUpdate()
