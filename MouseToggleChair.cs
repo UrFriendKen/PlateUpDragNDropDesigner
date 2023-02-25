@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 namespace KitchenDragNDropDesigner
 {
-    internal class MouseToggleChair : GenericSystemBase
+    internal class MouseToggleChair : RestaurantSystem
     {
         private struct SInteractionProxyMarker : IComponentData { }
 
