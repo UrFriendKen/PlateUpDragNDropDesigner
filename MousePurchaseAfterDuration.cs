@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace KitchenDragNDropDesigner
 {
-    [UpdateInGroup(typeof(HighPriorityInteractionGroup))]
+    [UpdateBefore(typeof(MouseRotateAppliances))]
     internal class MousePurchaseAfterDuration : MouseApplianceInteractionSystem
     {
         public struct CPurchaseProgress : IComponentData
@@ -62,7 +62,7 @@ namespace KitchenDragNDropDesigner
                 return false;
             }
             Money = GetOrDefault<SMoney>();
-            if (Money == default || Sale.Price > Money)
+            if (Sale.Price > Money)
             {
                 return false;
             }
@@ -90,10 +90,14 @@ namespace KitchenDragNDropDesigner
                 Purchase(ref data);
                 return;
             }
-            Duration.Active = true;
-            Duration.Remaining = progress.Progress;
-            Set(data.Target, Duration);
-            Set<CPerformedThisFrame>(data.Target);
+            else
+            {
+                Duration.Active = true;
+                Duration.Remaining = progress.Progress;
+                Set(data.Target, Duration);
+                Set<CPerformedThisFrame>(data.Target);
+            }
+            data.Attempt.Result = InteractionResult.Performed;
         }
 
         private void Purchase(ref InteractionData data)
