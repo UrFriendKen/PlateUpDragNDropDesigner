@@ -98,12 +98,8 @@ namespace KitchenDragNDropDesigner
 
         private void Purchase(ref InteractionData data)
         {
-            Main.LogInfo($"Money Before = {Money.Amount}");
-            Main.LogInfo($"Price = {Sale.Price}");
             Money.Amount -= Sale.Price;
-            
             SetSingleton(Money);
-            Main.LogInfo($"Money After = {Money.Amount}");
 
 
             NativeArray<CBlueprintRebuyableChance> nativeArray = RebuyChances.ToComponentDataArray<CBlueprintRebuyableChance>(Allocator.Temp);
