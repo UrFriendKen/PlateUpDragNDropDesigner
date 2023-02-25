@@ -1,10 +1,6 @@
 ﻿using Kitchen;
-using Kitchen.Modules;
 using KitchenLib;
-using KitchenLib.Event;
-using KitchenLib.Preferences;
 using KitchenMods;
-using System.Collections.Generic;
 using System.Reflection;
 using Unity.Entities;
 using UnityEngine;
@@ -15,7 +11,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "0.1.1";
+        public const string MOD_VERSION = "0.1.3";
         public const string MOD_AUTHOR = "IcedMilo";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
