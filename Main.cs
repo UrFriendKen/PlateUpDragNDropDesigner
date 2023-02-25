@@ -12,7 +12,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "0.1.8";
+        public const string MOD_VERSION = "0.2.0";
         public const string MOD_AUTHOR = "IcedMilo";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
@@ -20,15 +20,21 @@ namespace KitchenDragNDropDesigner
 
         public Main() : base(MOD_GUID, MOD_NAME, MOD_AUTHOR, MOD_VERSION, MOD_GAMEVERSION, Assembly.GetExecutingAssembly()) { }
 
+        internal static EntityQuery Players;
+
         protected override void OnInitialise()
         {
             // For log file output so the official plateup support staff can identify if/which a mod is being used
             LogWarning($"{MOD_GUID} v{MOD_VERSION} in use!");
 
+            instance = this;
+
             if (Session.CurrentGameNetworkMode == GameNetworkMode.Host)
             {
+                m_harmony.PatchAll(Assembly.GetExecutingAssembly());
                 try
                 {
+                    Players = GetEntityQuery(typeof(CPlayer));
                     World.GetExistingSystem<PickUpAndDropAppliance>().Enabled = false;
                     World.GetExistingSystem<RotateAppliances>().Enabled = false;
                     World.GetExistingSystem<RotateChairs>().Enabled = false;
@@ -43,12 +49,10 @@ namespace KitchenDragNDropDesigner
         
         protected override void OnUpdate()
         {
-
         }
 
         protected override void OnPostActivate(Mod mod)
         {
-            m_harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
         #region Logging

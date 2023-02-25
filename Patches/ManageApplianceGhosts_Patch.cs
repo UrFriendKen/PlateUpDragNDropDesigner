@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Controllers;
+using HarmonyLib;
 using Kitchen;
 using KitchenDragNDropDesigner.Helpers;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using Unity.Entities;
 
 namespace KitchenDragNDropDesigner.Patches
 {
@@ -20,7 +22,10 @@ namespace KitchenDragNDropDesigner.Patches
 
         static void Prefix(ref CAttemptingInteraction interact)
         {
-            if (MousePickUpAndDropAppliance.isPickedUpByMouse)
+            if (MousePickUpAndDropAppliance.isPickedUpByMouse &&
+                MouseHelpers.TryGetPlayerFromInteractionAttempt(interact, out Entity player) &&
+                Main.instance.EntityManager.RequireComponent(player, out CPlayer cPlayer) &&
+                cPlayer.InputSource == InputSourceIdentifier.Identifier.Value)
             {
                 interact.Location = MouseHelpers.MousePlanePos();
             }

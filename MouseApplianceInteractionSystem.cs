@@ -1,4 +1,5 @@
-﻿using Kitchen;
+﻿using Controllers;
+using Kitchen;
 using KitchenData;
 using KitchenDragNDropDesigner.Helpers;
 using Unity.Entities;
@@ -65,7 +66,8 @@ namespace KitchenDragNDropDesigner
 
         protected override bool ShouldAct(ref InteractionData interaction_data)
         {
-            UpdateInteractionData(ref interaction_data);
+            if (Require<CPlayer>(interaction_data.Interactor, out CPlayer player) && player.InputSource == InputSourceIdentifier.Identifier.Value)
+                UpdateInteractionData(ref interaction_data);
             return base.ShouldAct(ref interaction_data);
         }
 

@@ -1,5 +1,6 @@
 ﻿using Kitchen;
 using KitchenData;
+using KitchenLib.Utils;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -180,6 +181,7 @@ namespace KitchenDragNDropDesigner
                     Location = Position.Position.Rounded()
                 });
             }
+
             nativeArray.Dispose();
             nativeArray2.Dispose();
         }
