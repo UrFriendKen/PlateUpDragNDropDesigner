@@ -49,6 +49,7 @@ namespace KitchenDragNDropDesigner
         
         protected override void OnUpdate()
         {
+            Players = GetEntityQuery(typeof(CPlayer));
         }
 
         protected override void OnPostActivate(Mod mod)

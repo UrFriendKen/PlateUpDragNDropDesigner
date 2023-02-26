@@ -66,7 +66,9 @@ namespace KitchenDragNDropDesigner
 
         protected override bool ShouldAct(ref InteractionData interaction_data)
         {
-            if (Require<CPlayer>(interaction_data.Interactor, out CPlayer player) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(player))
+            if (Require<CPlayer>(interaction_data.Interactor, out CPlayer player) &&
+                Session.CurrentGameNetworkMode == GameNetworkMode.Host &&
+                MouseHelpers.IsKeyboardOrFirstLocalPlayer(player))
                 UpdateInteractionData(ref interaction_data);
             return base.ShouldAct(ref interaction_data);
         }
