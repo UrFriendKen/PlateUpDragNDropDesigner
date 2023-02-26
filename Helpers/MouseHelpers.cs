@@ -1,8 +1,10 @@
-﻿using Kitchen;
+﻿using Controllers;
+using Kitchen;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace KitchenDragNDropDesigner.Helpers
 {
@@ -47,6 +49,59 @@ namespace KitchenDragNDropDesigner.Helpers
             }
             entity = default;
             return false;
+        }
+
+        /// <summary>
+        /// Check if the player is using a keyboard
+        /// </summary>
+        /// <returns>true if player is using a keyboard; otherwise false</returns>
+        public static bool IsKeyboardOrFirstLocalPlayer(CPlayer cPlayer)
+        {
+            int? firstLocalPlayerIndex = null;
+            NativeArray<CPlayer> players = Main.Players.ToComponentDataArray<CPlayer>(Allocator.Temp);
+            foreach (var player in players)
+            {
+                if (player.InputSource == InputSourceIdentifier.Identifier.Value)
+                {
+                    if (!firstLocalPlayerIndex.HasValue || player.Index < firstLocalPlayerIndex)
+                    {
+                        firstLocalPlayerIndex = player.Index;
+                    }
+                    continue;
+                }
+
+                if (player.InputSource == cPlayer.InputSource)
+                {
+                    break;
+                }
+            }
+            players.Dispose();
+            if (!firstLocalPlayerIndex.HasValue)
+            {
+                //Main.LogInfo("Is Remote Player");
+                return false;
+            }
+
+            InputDevice keyboard = null;
+            foreach (InputDevice device in InputSystem.devices)
+            {
+                if (device is Keyboard)
+                {
+                    //Main.LogInfo("Keyboard found");
+                    keyboard = device;
+                    break;
+                }
+            }
+
+            InputDevice playerDevice = InputSystem.GetDeviceById(cPlayer.InputSource);
+            if (playerDevice == keyboard)
+            {
+                //Main.LogInfo("Is Keyboard Player");
+                return true;
+            }
+
+            Main.LogInfo($"{(cPlayer.Index == firstLocalPlayerIndex ? "Is First Player" : "Not First Player")}");
+            return cPlayer.Index == firstLocalPlayerIndex;
         }
     }
 }

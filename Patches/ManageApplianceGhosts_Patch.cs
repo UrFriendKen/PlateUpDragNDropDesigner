@@ -25,7 +25,7 @@ namespace KitchenDragNDropDesigner.Patches
             if (MousePickUpAndDropAppliance.isPickedUpByMouse &&
                 MouseHelpers.TryGetPlayerFromInteractionAttempt(interact, out Entity player) &&
                 Main.instance.EntityManager.RequireComponent(player, out CPlayer cPlayer) &&
-                cPlayer.InputSource == InputSourceIdentifier.Identifier.Value)
+                MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
             {
                 interact.Location = MouseHelpers.MousePlanePos();
             }
