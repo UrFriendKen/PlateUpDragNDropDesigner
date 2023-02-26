@@ -1,5 +1,7 @@
 ﻿using Kitchen;
 using KitchenData;
+using KitchenDragNDropDesigner.Helpers;
+using KitchenDragNDropDesigner.Patches;
 using Unity.Entities;
 using UnityEngine;
 
@@ -8,7 +10,6 @@ namespace KitchenDragNDropDesigner
     internal class MousePickUpAndDropAppliance : MouseApplianceInteractionSystem
     {
         private CItemHolder Holder;
-        public static bool isPickedUpByMouse { get; private set; } = false;
 
         protected override InteractionType RequiredType => InteractionType.Grab;
 
@@ -106,7 +107,9 @@ namespace KitchenDragNDropDesigner
                 else
                     ctx.Set<CItemHolder>(player, new CItemHolder());
                 SetOccupant(position, heldItem);
-                isPickedUpByMouse = flag4 && isMouseInteraction;
+
+                if (Require<CPlayer>(player, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
+                    ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = flag4 && isMouseInteraction;
             }
             return flag5;
         }
@@ -152,7 +155,9 @@ namespace KitchenDragNDropDesigner
                         HeldItem = interact.Target
                     });
                     SetOccupant(interact.Location, new Entity(), component.Layer);
-                    isPickedUpByMouse = isMouseInteraction;
+
+                    if (Require<CPlayer>(player, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
+                        ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = isMouseInteraction;
                 }
                 flag = true;
                 interact.Result = should_act ? InteractionResult.Performed : InteractionResult.Possible;

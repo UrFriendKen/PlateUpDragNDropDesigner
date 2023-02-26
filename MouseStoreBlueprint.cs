@@ -1,4 +1,6 @@
 ﻿using Kitchen;
+using KitchenDragNDropDesigner.Helpers;
+using KitchenDragNDropDesigner.Patches;
 using Unity.Entities;
 
 namespace KitchenDragNDropDesigner
@@ -63,6 +65,9 @@ namespace KitchenDragNDropDesigner
                 Store.HasBeenMadeFree = false;
                 SetComponent(data.Target, Store);
                 data.Attempt.Result = InteractionResult.Performed;
+
+                if (Require<CPlayer>(data.Interactor, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
+                    ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = false;
             }
             else if (!Store.HasBeenCopied && Store.Price == Sale.Price && Store.ApplianceID == Blueprint.Appliance)
             {
@@ -71,6 +76,9 @@ namespace KitchenDragNDropDesigner
                 Store.HasBeenCopied = true;
                 SetComponent(data.Target, Store);
                 data.Attempt.Result = InteractionResult.Performed;
+
+                if (Require<CPlayer>(data.Interactor, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
+                    ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = false;
             }
         }
     }

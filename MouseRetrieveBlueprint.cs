@@ -1,4 +1,6 @@
 ﻿using Kitchen;
+using KitchenDragNDropDesigner.Helpers;
+using KitchenDragNDropDesigner.Patches;
 using Unity.Entities;
 
 namespace KitchenDragNDropDesigner
@@ -89,6 +91,9 @@ namespace KitchenDragNDropDesigner
             SetComponent(data.Target, Store);
 
             data.Attempt.Result = InteractionResult.Performed;
+
+            if (Require<CPlayer>(data.Interactor, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
+                ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = true;
         }
     }
 }

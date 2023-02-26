@@ -12,8 +12,10 @@ using Unity.Entities;
 namespace KitchenDragNDropDesigner.Patches
 {
     [HarmonyPatch]
-    public static class ManageApplianceGhostsOriginalLambdaBodyPatch
+    internal static class ManageApplianceGhostsOriginalLambdaBodyPatch
     {
+        public static bool isPickedUpByMouse = false;
+
         static MethodBase TargetMethod()
         {
             Type type = AccessTools.FirstInner(typeof(ManageApplianceGhosts), t => t.Name.Contains("c__DisplayClass_OnUpdate_LambdaJob1"));
@@ -22,7 +24,8 @@ namespace KitchenDragNDropDesigner.Patches
 
         static void Prefix(ref CAttemptingInteraction interact)
         {
-            if (MousePickUpAndDropAppliance.isPickedUpByMouse &&
+            Main.LogInfo(isPickedUpByMouse);
+            if (isPickedUpByMouse &&
                 MouseHelpers.TryGetPlayerFromInteractionAttempt(interact, out Entity player) &&
                 Main.instance.EntityManager.RequireComponent(player, out CPlayer cPlayer) &&
                 MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
