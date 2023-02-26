@@ -1,11 +1,5 @@
 ﻿using Kitchen;
 using Kitchen.Layouts;
-using KitchenDragNDropDesigner.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -16,8 +10,6 @@ namespace KitchenDragNDropDesigner
     internal class MouseApplyDecorationInteraction : MouseApplianceInteractionSystem
     {
         private EntityQuery DecorChanges;
-
-        private CPosition InteractorPosition;
 
         private CItemHolder ItemHolder;
 
@@ -53,7 +45,6 @@ namespace KitchenDragNDropDesigner
 
         protected override bool IsPossible(ref InteractionData data)
         {
-            InteractorPosition = MouseHelpers.MousePlanePos();
             if (!Require<CItemHolder>(data.Interactor, out ItemHolder) || ItemHolder.HeldItem == default(Entity))
             {
                 return false;
@@ -62,7 +53,7 @@ namespace KitchenDragNDropDesigner
             {
                 return false;
             }
-            Tile = GetTile(InteractorPosition);
+            Tile = GetTile(data.Attempt.Location);
             if (!LayoutHelpers.IsInside(Tile.Type))
             {
                 return false;
