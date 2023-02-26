@@ -24,7 +24,6 @@ namespace KitchenDragNDropDesigner.Patches
 
         static void Prefix(ref CAttemptingInteraction interact)
         {
-            Main.LogInfo(isPickedUpByMouse);
             if (isPickedUpByMouse &&
                 MouseHelpers.TryGetPlayerFromInteractionAttempt(interact, out Entity player) &&
                 Main.instance.EntityManager.RequireComponent(player, out CPlayer cPlayer) &&
