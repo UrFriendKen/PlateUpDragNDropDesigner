@@ -26,12 +26,14 @@ namespace KitchenDragNDropDesigner
         internal static string GRAB_BUTTON_PREF_ID = "grabButton";
         internal static string ACT_BUTTON_PREF_ID = "actButton";
         internal static string PING_BUTTON_PREF_ID = "pingButton";
+        internal static string BLUEPRINT_BUTTON_PREF_ID = "blueprintButton";
 
         internal static PreferenceManager Manager;
 
         internal static PreferenceMouseButton GrabButtonPreference;
         internal static PreferenceMouseButton ActButtonPreference;
         internal static PreferenceMouseButton PingButtonPreference;
+        internal static PreferenceMouseButton BlueprintButtonPreference;
 
 
         public Main() : base(MOD_GUID, MOD_NAME, MOD_AUTHOR, MOD_VERSION, MOD_GAMEVERSION, Assembly.GetExecutingAssembly()) { }
@@ -89,6 +91,7 @@ namespace KitchenDragNDropDesigner
             GrabButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(GRAB_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Left));
             ActButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(ACT_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Right));
             PingButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(PING_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
+            BlueprintButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(BLUEPRINT_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
             Manager.Load();
         }
 
@@ -122,12 +125,12 @@ namespace KitchenDragNDropDesigner
 
         public override void Deserialize(string json)
         {
-            base.Value = (MouseApplianceInteractionSystem.MouseButton)int.Parse(json);
+            base.Value = (MouseApplianceInteractionSystem.MouseButton)Enum.Parse(typeof(MouseApplianceInteractionSystem.MouseButton), json);
         }
 
         public override string Serialize()
         {
-             return base.Value.ToString();
+            return base.Value.ToString();
         }
     }
 
@@ -136,6 +139,7 @@ namespace KitchenDragNDropDesigner
         Option<MouseApplianceInteractionSystem.MouseButton> GrabOption;
         Option<MouseApplianceInteractionSystem.MouseButton> ActOption;
         Option<MouseApplianceInteractionSystem.MouseButton> PingOption;
+        Option<MouseApplianceInteractionSystem.MouseButton> BlueprintOption;
 
         readonly List<MouseApplianceInteractionSystem.MouseButton> values = new List<MouseApplianceInteractionSystem.MouseButton>
         {
@@ -188,6 +192,15 @@ namespace KitchenDragNDropDesigner
             Add<MouseApplianceInteractionSystem.MouseButton>(PingOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
             {
                 Main.PingButtonPreference.Set(value);
+                Main.Manager.Save();
+            };
+
+            AddLabel("Store/Retrieve Blueprint");
+            BlueprintOption = new Option<MouseApplianceInteractionSystem.MouseButton>(
+                values, Main.BlueprintButtonPreference.Get(), texts);
+            Add<MouseApplianceInteractionSystem.MouseButton>(BlueprintOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
+            {
+                Main.BlueprintButtonPreference.Set(value);
                 Main.Manager.Save();
             };
 
