@@ -3,7 +3,6 @@ using Kitchen;
 using KitchenData;
 using KitchenDragNDropDesigner.Helpers;
 using Unity.Entities;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace KitchenDragNDropDesigner
@@ -18,7 +17,9 @@ namespace KitchenDragNDropDesigner
         {
             Left,
             Middle,
-            Right
+            Right,
+            Forward,
+            Back
         }
 
         protected bool IsMouseButtonPressed
@@ -33,6 +34,10 @@ namespace KitchenDragNDropDesigner
                         return Mouse.current.middleButton.IsPressed();
                     case MouseButton.Right:
                         return Mouse.current.rightButton.IsPressed();
+                    case MouseButton.Forward:
+                        return Mouse.current.forwardButton.IsPressed();
+                    case MouseButton.Back:
+                        return Mouse.current.backButton.IsPressed();
                     default:
                         return false;
                 }
@@ -66,10 +71,20 @@ namespace KitchenDragNDropDesigner
 
         protected override bool ShouldAct(ref InteractionData interaction_data)
         {
-            if (Require<CPlayer>(interaction_data.Interactor, out CPlayer player) &&
-                Session.CurrentGameNetworkMode == GameNetworkMode.Host &&
-                MouseHelpers.IsKeyboardOrFirstLocalPlayer(player))
-                UpdateInteractionData(ref interaction_data);
+            if (Require<CPlayer>(interaction_data.Interactor, out CPlayer player))
+            {
+                if (player.InputSource == InputSourceIdentifier.Identifier &&
+                    Main.IsPauseMenuOpen)
+                {
+                    return false;
+                }
+
+                if (Session.CurrentGameNetworkMode == GameNetworkMode.Host &&
+                    MouseHelpers.IsKeyboardOrFirstLocalPlayer(player))
+                    UpdateInteractionData(ref interaction_data);
+            }
+
+
             return base.ShouldAct(ref interaction_data);
         }
 

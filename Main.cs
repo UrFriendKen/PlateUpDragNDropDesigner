@@ -12,7 +12,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "0.2.3";
+        public const string MOD_VERSION = "0.2.4";
         public const string MOD_AUTHOR = "IcedMilo";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
@@ -21,6 +21,8 @@ namespace KitchenDragNDropDesigner
         public Main() : base(MOD_GUID, MOD_NAME, MOD_AUTHOR, MOD_VERSION, MOD_GAMEVERSION, Assembly.GetExecutingAssembly()) { }
 
         internal static EntityQuery Players;
+
+        internal static bool IsPauseMenuOpen = false;
 
         protected override void OnInitialise()
         {
@@ -50,6 +52,13 @@ namespace KitchenDragNDropDesigner
         protected override void OnUpdate()
         {
             Players = GetEntityQuery(typeof(CPlayer));
+
+            GameObject pauseMenuPopup = GameObject.Find("Player Pause Popup");
+            if (pauseMenuPopup != null)
+            {
+                Transform container = pauseMenuPopup.transform.Find("Container");
+                IsPauseMenuOpen = container.gameObject.activeSelf;
+            }
         }
 
         protected override void OnPostActivate(Mod mod)
