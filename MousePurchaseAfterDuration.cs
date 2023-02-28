@@ -25,7 +25,7 @@ namespace KitchenDragNDropDesigner
 
         protected SMoney Money;
 
-        protected override MouseButton Button => MouseButton.Right;
+        protected override MouseButton Button => Main.ActButtonPreference.Get();
 
         protected override bool AllowHold => true;
 

@@ -9,7 +9,7 @@ namespace KitchenDragNDropDesigner
 {
     internal class MouseRotateAppliances : MouseApplianceInteractionSystem
     {
-        protected override MouseButton Button => MouseButton.Right;
+        protected override MouseButton Button => Main.ActButtonPreference.Get();
 
         protected override InteractionType RequiredType => InteractionType.Act;
 

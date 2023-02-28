@@ -17,7 +17,7 @@ namespace KitchenDragNDropDesigner
 
         private CBlueprintStore Store;
 
-        protected override MouseButton Button => MouseButton.Middle;
+        protected override MouseButton Button => Main.PingButtonPreference.Get();
 
         protected override InteractionType RequiredType => InteractionType.Grab;
 

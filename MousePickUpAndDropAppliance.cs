@@ -15,6 +15,8 @@ namespace KitchenDragNDropDesigner
 
         protected override bool UseImmediateContext => true;
 
+        protected override MouseButton Button => Main.GrabButtonPreference.Get();
+
         protected override bool IsPossible(ref InteractionData data) => Require<CPosition>(data.Interactor, out Position) && Require<CItemHolder>(data.Interactor, out Holder) && Perform(ref data, false);
 
         protected override void Perform(ref InteractionData data)

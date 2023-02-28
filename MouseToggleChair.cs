@@ -30,7 +30,7 @@ namespace KitchenDragNDropDesigner
             position.ForceSnap = false;
             Entity entity = GetOccupant(position, OccupancyLayer.Default);
 
-            if (Has<SIsNightTime>() && Has<CApplianceChair>(entity) && Mouse.current.rightButton.isPressed)
+            if (Has<SIsNightTime>() && Has<CApplianceChair>(entity) && MouseHelpers.IsMouseButtonPressed(Main.ActButtonPreference.Get()))
             {
                 wasPressed = true;
                 NativeArray<Entity> players = Players.ToEntityArray(Allocator.Temp);

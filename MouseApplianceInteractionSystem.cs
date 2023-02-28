@@ -13,7 +13,7 @@ namespace KitchenDragNDropDesigner
         protected bool MadeChanges = default;
         protected CPosition Position;
 
-        protected enum MouseButton
+        public enum MouseButton
         {
             Left,
             Middle,

@@ -21,7 +21,7 @@ namespace KitchenDragNDropDesigner
 
         private NativeArray<Entity> ChangeDecorEntities;
 
-        protected override MouseButton Button => MouseButton.Right;
+        protected override MouseButton Button => Main.ActButtonPreference.Get();
 
         protected override void Initialise()
         {

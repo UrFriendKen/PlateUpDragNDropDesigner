@@ -105,5 +105,25 @@ namespace KitchenDragNDropDesigner.Helpers
             //Main.LogInfo($"{(cPlayer.Index == firstLocalPlayerIndex ? "Is First Player" : "Not First Player")}");
             return cPlayer.Index == firstLocalPlayerIndex;
         }
+
+        internal static bool IsMouseButtonPressed(MouseApplianceInteractionSystem.MouseButton button)
+        {
+
+            switch (button)
+            {
+                case MouseApplianceInteractionSystem.MouseButton.Left:
+                    return Mouse.current.leftButton.IsPressed();
+                case MouseApplianceInteractionSystem.MouseButton.Middle:
+                    return Mouse.current.middleButton.IsPressed();
+                case MouseApplianceInteractionSystem.MouseButton.Right:
+                    return Mouse.current.rightButton.IsPressed();
+                case MouseApplianceInteractionSystem.MouseButton.Forward:
+                    return Mouse.current.forwardButton.IsPressed();
+                case MouseApplianceInteractionSystem.MouseButton.Back:
+                    return Mouse.current.backButton.IsPressed();
+                default:
+                    return false;
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace KitchenDragNDropDesigner
 
         protected override InteractionType RequiredType => InteractionType.Grab;
 
-        protected override MouseButton Button => MouseButton.Middle;
+        protected override MouseButton Button => Main.PingButtonPreference.Get();
 
         protected override bool IsPossible(ref InteractionData data)
         {
