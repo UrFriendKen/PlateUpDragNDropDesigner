@@ -17,7 +17,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "0.2.5";
+        public const string MOD_VERSION = "0.2.6";
         public const string MOD_AUTHOR = "IcedMilo";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
@@ -27,6 +27,7 @@ namespace KitchenDragNDropDesigner
         internal static string ACT_BUTTON_PREF_ID = "actButton";
         internal static string PING_BUTTON_PREF_ID = "pingButton";
         internal static string BLUEPRINT_BUTTON_PREF_ID = "blueprintButton";
+        internal static string MISCELLANEOUS_BUTTON_PREF_ID = "miscButton";
 
         internal static PreferenceManager Manager;
 
@@ -34,6 +35,7 @@ namespace KitchenDragNDropDesigner
         internal static PreferenceMouseButton ActButtonPreference;
         internal static PreferenceMouseButton PingButtonPreference;
         internal static PreferenceMouseButton BlueprintButtonPreference;
+        internal static PreferenceMouseButton MiscellaneousButtonPreference;
 
 
         public Main() : base(MOD_GUID, MOD_NAME, MOD_AUTHOR, MOD_VERSION, MOD_GAMEVERSION, Assembly.GetExecutingAssembly()) { }
@@ -92,6 +94,7 @@ namespace KitchenDragNDropDesigner
             ActButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(ACT_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Right));
             PingButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(PING_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
             BlueprintButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(BLUEPRINT_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
+            MiscellaneousButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(MISCELLANEOUS_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
             Manager.Load();
         }
 
@@ -140,6 +143,7 @@ namespace KitchenDragNDropDesigner
         Option<MouseApplianceInteractionSystem.MouseButton> ActOption;
         Option<MouseApplianceInteractionSystem.MouseButton> PingOption;
         Option<MouseApplianceInteractionSystem.MouseButton> BlueprintOption;
+        Option<MouseApplianceInteractionSystem.MouseButton> MiscOption;
 
         readonly List<MouseApplianceInteractionSystem.MouseButton> values = new List<MouseApplianceInteractionSystem.MouseButton>
         {
@@ -201,6 +205,15 @@ namespace KitchenDragNDropDesigner
             Add<MouseApplianceInteractionSystem.MouseButton>(BlueprintOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
             {
                 Main.BlueprintButtonPreference.Set(value);
+                Main.Manager.Save();
+            };
+
+            AddLabel("Miscellaneous Action");
+            MiscOption = new Option<MouseApplianceInteractionSystem.MouseButton>(
+                values, Main.MiscellaneousButtonPreference.Get(), texts);
+            Add<MouseApplianceInteractionSystem.MouseButton>(MiscOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
+            {
+                Main.MiscellaneousButtonPreference.Set(value);
                 Main.Manager.Save();
             };
 
