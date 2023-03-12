@@ -17,6 +17,8 @@ namespace KitchenDragNDropDesigner
             public float Total;
         }
 
+        protected CAppliance ApplianceLetter;
+
         protected CTakesDuration Duration;
 
         protected CApplianceBlueprint Blueprint;
@@ -47,6 +49,10 @@ namespace KitchenDragNDropDesigner
                 return false;
             }
             if (!Require<CApplianceBlueprint>(data.Target, out Blueprint))
+            {
+                return false;
+            }
+            if (!Require<CAppliance>(data.Target, out ApplianceLetter))
             {
                 return false;
             }
@@ -148,7 +154,7 @@ namespace KitchenDragNDropDesigner
                 Entity e2 = EntityManager.CreateEntity();
                 Set(e2, new CCreateAppliance
                 {
-                    ID = Blueprint.Appliance
+                    ID = ApplianceLetter.ID
                 });
                 Set(e2, new CPosition(Position));
                 Set(e2, new CApplianceBlueprint
