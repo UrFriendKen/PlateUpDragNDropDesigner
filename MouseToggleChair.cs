@@ -2,9 +2,10 @@
 using Kitchen;
 using KitchenData;
 using KitchenDragNDropDesigner.Helpers;
+using System;
+using System.Reflection;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine.InputSystem;
 
 namespace KitchenDragNDropDesigner
 {
@@ -16,21 +17,29 @@ namespace KitchenDragNDropDesigner
 
         bool wasPressed = false;
 
+        MethodInfo HasSRerollTrigger;
+        MethodInfo HasSPracticeTrigger;
+
         protected override void Initialise()
         {
             base.Initialise();
             Players = GetEntityQuery(typeof(CPlayer));
+
+            Type sRerollTriggerType = typeof(CreateRerollTrigger).GetNestedType("SRerollTrigger", BindingFlags.NonPublic);
+            MethodInfo hasMethod = typeof(GenericSystemBase).GetMethod("Has", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(Entity) }, null);
+            HasSRerollTrigger = hasMethod.MakeGenericMethod(sRerollTriggerType);
         }
 
         protected override void OnUpdate()
         {
             bool performed = false;
-                
+            
             CPosition position = MouseHelpers.MousePlanePos();
             position.ForceSnap = false;
             Entity entity = GetOccupant(position, OccupancyLayer.Default);
 
-            if (Has<SIsNightTime>() && Has<CApplianceChair>(entity) && MouseHelpers.IsMouseButtonPressed(Main.ActButtonPreference.Get()))
+            if (Has<SIsNightTime>() && (Has<CApplianceChair>(entity) || (bool)HasSRerollTrigger.Invoke(this, new object[] { entity })) && 
+                MouseHelpers.IsMouseButtonPressed(Main.ActButtonPreference.Get()))
             {
                 wasPressed = true;
                 NativeArray<Entity> players = Players.ToEntityArray(Allocator.Temp);
