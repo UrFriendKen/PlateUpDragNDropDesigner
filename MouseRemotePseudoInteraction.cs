@@ -9,7 +9,7 @@ using Unity.Entities;
 
 namespace KitchenDragNDropDesigner
 {
-    internal class MouseToggleChair : RestaurantSystem
+    internal class MouseRemotePseudoInteraction : RestaurantSystem
     {
         private struct SInteractionProxyMarker : IComponentData { }
 
@@ -18,7 +18,6 @@ namespace KitchenDragNDropDesigner
         bool wasPressed = false;
 
         MethodInfo HasSRerollTrigger;
-        MethodInfo HasSPracticeTrigger;
 
         protected override void Initialise()
         {
