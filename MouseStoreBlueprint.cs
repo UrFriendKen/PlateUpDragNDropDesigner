@@ -43,6 +43,10 @@ namespace KitchenDragNDropDesigner
             {
                 return false;
             }
+            if (Store.InUse && !Blueprint.IsCopy)
+            {
+                return false;
+            }
             if (Has<CPerformedThisFrame>(data.Interactor))
             {
                 return false;
