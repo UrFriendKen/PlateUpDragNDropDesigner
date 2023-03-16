@@ -5,6 +5,7 @@ using Unity.Entities;
 
 namespace KitchenDragNDropDesigner
 {
+    [UpdateBefore(typeof(PickUpAndDropAppliance))]
     internal class MouseStoreBlueprint : MouseApplianceInteractionSystem
     {
         private CItemHolder Holder;

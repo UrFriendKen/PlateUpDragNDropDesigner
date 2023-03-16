@@ -16,7 +16,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "0.2.9";
+        public const string MOD_VERSION = "0.2.10";
         public const string MOD_AUTHOR = "IcedMilo";
         public const string MOD_GAMEVERSION = ">=1.1.4";
 
@@ -53,18 +53,18 @@ namespace KitchenDragNDropDesigner
             if (Session.CurrentGameNetworkMode == GameNetworkMode.Host)
             {
                 m_harmony.PatchAll(Assembly.GetExecutingAssembly());
-                try
-                {
+                //try
+                //{
                     Players = GetEntityQuery(typeof(CPlayer));
-                    World.GetExistingSystem<PickUpAndDropAppliance>().Enabled = false;
-                    World.GetExistingSystem<RotateAppliances>().Enabled = false;
-                    World.GetExistingSystem<RotateChairs>().Enabled = false;
-                    LogWarning("Disabled Vanilla Systems");
-                }
-                catch (NullReferenceException)
-                {
-                    LogWarning("Could not disable system! Are in you multiplayer as a non-host?");
-                }
+                    //World.GetExistingSystem<PickUpAndDropAppliance>().Enabled = false;
+                    //World.GetExistingSystem<RotateAppliances>().Enabled = false;
+                    //World.GetExistingSystem<RotateChairs>().Enabled = false;
+                //    LogWarning("Disabled Vanilla Systems");
+                //}
+                //catch (NullReferenceException)
+                //{
+                //    LogWarning("Could not disable system! Are in you multiplayer as a non-host?");
+                //}
             }
         }
         
