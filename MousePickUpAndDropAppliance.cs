@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace KitchenDragNDropDesigner
 {
-    [UpdateAfter(typeof(PickUpAndDropAppliance))]
+    [UpdateBefore(typeof(PickUpAndDropAppliance))]
     internal class MousePickUpAndDropAppliance : MouseApplianceInteractionSystem
     {
         private CItemHolder Holder;
