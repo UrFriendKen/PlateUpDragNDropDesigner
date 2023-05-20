@@ -11,6 +11,20 @@ namespace KitchenDragNDropDesigner.Helpers
 {
     public static class MouseHelpers
     {
+        static Camera _mainCamera;
+
+        static Camera MainCamera 
+        {
+            get
+            {
+                if (_mainCamera == null)
+                {
+                    _mainCamera = Camera.main;
+                }
+                return _mainCamera;
+            }
+        }
+        
         /// <summary>
         /// Mouse position in world at planeYOffset (default: 0.3f)
         /// </summary>
@@ -18,7 +32,7 @@ namespace KitchenDragNDropDesigner.Helpers
         public static Vector3 MousePlanePos(float planeYOffset = 0.3f)
         {
             Plane plane = new Plane(Vector3.down, planeYOffset);
-            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Ray ray = MainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (plane.Raycast(ray, out float distance))
             {
                 Vector3 intersection = ray.GetPoint(distance);
