@@ -21,7 +21,10 @@ namespace KitchenDragNDropDesigner
 
         protected override void Perform(ref InteractionData data)
         {
-            Set<CBeingLookedAt>(data.Target);
+            Set(data.Target, new CBeingLookedAt()
+            {
+                Interactor = data.Interactor
+            });
         }
 
         protected override void UpdateInteractionData(ref InteractionData interaction_data)

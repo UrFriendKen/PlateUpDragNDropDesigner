@@ -105,7 +105,11 @@ namespace KitchenDragNDropDesigner
         protected Entity UpdateMouseTarget(ref InteractionData data, OccupancyLayer layer)
         {
             data.Attempt.Location = MouseHelpers.MousePlanePos();
-            data.Attempt.Target = layer != OccupancyLayer.Default ? GetOccupant(data.Attempt.Location, layer) : GetPrimaryOccupant(data.Attempt.Location);
+            Entity newTarget = layer != OccupancyLayer.Default ? GetOccupant(data.Attempt.Location, layer) : GetPrimaryOccupant(data.Attempt.Location);
+            if (newTarget != default && Has<CIsInteractive>(newTarget))
+            {
+                data.Attempt.Target = newTarget;
+            }
             return data.Attempt.Target;
         }
     }
