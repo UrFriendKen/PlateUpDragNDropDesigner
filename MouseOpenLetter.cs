@@ -6,7 +6,7 @@ namespace KitchenDragNDropDesigner
     [UpdateAfter(typeof(MousePickUpAndDropAppliance))]
     internal class MouseOpenLetter : MouseApplianceInteractionSystem
     {
-        protected override MouseButton Button => Main.GrabButtonPreference.Get();
+        protected override MouseButton Button => Main.GrabButton;
 
         protected override bool IsPossible(ref InteractionData data)
         {

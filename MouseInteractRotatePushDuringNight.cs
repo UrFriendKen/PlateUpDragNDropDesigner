@@ -13,7 +13,7 @@ namespace KitchenDragNDropDesigner
     internal class MouseInteractRotatePushDuringNight : MouseApplianceInteractionSystem
     {
         private CConveyPushRotatable Rotatable;
-        protected override MouseButton Button => Main.MiscellaneousButtonPreference.Get();
+        protected override MouseButton Button => Main.MiscellaneousButton;
         protected override InteractionType RequiredType => InteractionType.Notify;
 
         protected override bool IsPossible(ref InteractionData data)

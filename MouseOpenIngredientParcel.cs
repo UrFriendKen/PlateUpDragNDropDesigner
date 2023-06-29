@@ -15,7 +15,7 @@ namespace KitchenDragNDropDesigner
         private CLetterIngredient Letter;
         protected override bool AllowActOrGrab => true;
 
-        protected override MouseButton Button => Main.GrabButtonPreference.Get();
+        protected override MouseButton Button => Main.GrabButton;
 
         protected override bool IsPossible(ref InteractionData data)
         {

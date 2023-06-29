@@ -15,9 +15,10 @@ namespace KitchenDragNDropDesigner
 
         public enum MouseButton
         {
+            None,
             Left,
-            Middle,
             Right,
+            Middle,
             Forward,
             Back
         }
@@ -74,7 +75,7 @@ namespace KitchenDragNDropDesigner
             if (Require<CPlayer>(interaction_data.Interactor, out CPlayer player))
             {
                 if (player.InputSource == InputSourceIdentifier.Identifier &&
-                    Main.IsPauseMenuOpen)
+                    PauseMenuObserver.IsPauseMenuOpen)
                 {
                     return false;
                 }

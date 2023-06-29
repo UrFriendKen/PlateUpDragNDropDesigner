@@ -12,7 +12,7 @@ namespace KitchenDragNDropDesigner
 
         protected override InteractionType RequiredType => InteractionType.Grab;
 
-        protected override MouseButton Button => Main.GrabButtonPreference.Get();
+        protected override MouseButton Button => Main.GrabButton;
 
         protected override bool IsPossible(ref InteractionData data)
         {

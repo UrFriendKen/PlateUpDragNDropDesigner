@@ -8,7 +8,7 @@ namespace KitchenDragNDropDesigner
         private int ApplianceID;
         protected override InteractionType RequiredType => InteractionType.Notify;
         protected override InteractionMode RequiredMode => InteractionMode.Appliances;
-        protected override MouseButton Button => Main.PingButtonPreference.Get();
+        protected override MouseButton Button => Main.PingButton;
 
         protected override bool IsPossible(ref InteractionData data)
         {

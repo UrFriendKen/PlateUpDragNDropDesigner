@@ -1,5 +1,4 @@
-﻿using Controllers;
-using HarmonyLib;
+﻿using HarmonyLib;
 using Kitchen;
 using KitchenDragNDropDesigner.Helpers;
 using System;
@@ -26,7 +25,7 @@ namespace KitchenDragNDropDesigner.Patches
         {
             if (isPickedUpByMouse &&
                 MouseHelpers.TryGetPlayerFromInteractionAttempt(interact, out Entity player) &&
-                Main.instance.EntityManager.RequireComponent(player, out CPlayer cPlayer) &&
+                PatchController.RequireStatic(player, out CPlayer cPlayer) &&
                 MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
             {
                 interact.Location = MouseHelpers.MousePlanePos();

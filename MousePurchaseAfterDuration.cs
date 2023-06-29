@@ -1,6 +1,5 @@
 ﻿using Kitchen;
 using KitchenData;
-using KitchenLib.Utils;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -27,7 +26,7 @@ namespace KitchenDragNDropDesigner
 
         protected SMoney Money;
 
-        protected override MouseButton Button => Main.ActButtonPreference.Get();
+        protected override MouseButton Button => Main.ActButton;
 
         protected override bool AllowHold => true;
 

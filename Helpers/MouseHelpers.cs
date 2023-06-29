@@ -35,8 +35,8 @@ namespace KitchenDragNDropDesigner.Helpers
         /// <returns>true if player entity is found; otherwise false</returns>
         public static bool TryGetPlayerFromInteractionAttempt(CAttemptingInteraction attempt, out Entity entity)
         {
-            using NativeArray<Entity> entities = Main.Players.ToEntityArray(Allocator.Temp);
-            using NativeArray<CAttemptingInteraction> playerAttempts = Main.Players.ToComponentDataArray<CAttemptingInteraction>(Allocator.Temp);
+            using NativeArray<Entity> entities = PatchController.Players.ToEntityArray(Allocator.Temp);
+            using NativeArray<CAttemptingInteraction> playerAttempts = PatchController.Players.ToComponentDataArray<CAttemptingInteraction>(Allocator.Temp);
 
             for (int i = 0; i < entities.Length; i++)
             {
@@ -59,7 +59,7 @@ namespace KitchenDragNDropDesigner.Helpers
         public static bool IsKeyboardOrFirstLocalPlayer(CPlayer cPlayer)
         {
             int? firstLocalPlayerIndex = null;
-            NativeArray<CPlayer> players = Main.Players.ToComponentDataArray<CPlayer>(Allocator.Temp);
+            NativeArray<CPlayer> players = PatchController.Players.ToComponentDataArray<CPlayer>(Allocator.Temp);
             foreach (var player in players)
             {
                 if (player.InputSource == InputSourceIdentifier.Identifier.Value)

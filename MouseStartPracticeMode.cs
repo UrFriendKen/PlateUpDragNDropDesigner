@@ -19,7 +19,7 @@ namespace KitchenDragNDropDesigner
 
         protected override InteractionType RequiredType => InteractionType.Act;
 
-        protected override MouseButton Button => Main.ActButtonPreference.Get();
+        protected override MouseButton Button => Main.ActButton;
 
         private EntityQuery StartDayWarnings;
 

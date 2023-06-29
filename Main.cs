@@ -1,26 +1,18 @@
-﻿using Kitchen;
-using Kitchen.Modules;
-using KitchenLib;
-using KitchenLib.Event;
-using KitchenLib.Preferences;
+﻿using HarmonyLib;
 using KitchenMods;
+using PreferenceSystem;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Unity.Entities;
 using UnityEngine;
 
 namespace KitchenDragNDropDesigner
 {
-    public class Main : BaseMod
+    public class Main : IModInitializer
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
         public const string MOD_VERSION = "0.2.13";
-        public const string MOD_AUTHOR = "IcedMilo";
-        public const string MOD_GAMEVERSION = ">=1.1.4";
-
-        private readonly HarmonyLib.Harmony m_harmony = new HarmonyLib.Harmony("IcedMilo.PlateUp.Harmony.DragNDropDesigner");
 
         internal static string GRAB_BUTTON_PREF_ID = "grabButton";
         internal static string ACT_BUTTON_PREF_ID = "actButton";
@@ -28,71 +20,139 @@ namespace KitchenDragNDropDesigner
         internal static string BLUEPRINT_BUTTON_PREF_ID = "blueprintButton";
         internal static string MISCELLANEOUS_BUTTON_PREF_ID = "miscButton";
 
-        internal static PreferenceManager Manager;
+        internal static PreferenceSystemManager PrefManager;
 
-        internal static PreferenceMouseButton GrabButtonPreference;
-        internal static PreferenceMouseButton ActButtonPreference;
-        internal static PreferenceMouseButton PingButtonPreference;
-        internal static PreferenceMouseButton BlueprintButtonPreference;
-        internal static PreferenceMouseButton MiscellaneousButtonPreference;
+        internal static MouseApplianceInteractionSystem.MouseButton GrabButton;
+        internal static MouseApplianceInteractionSystem.MouseButton ActButton;
+        internal static MouseApplianceInteractionSystem.MouseButton PingButton;
+        internal static MouseApplianceInteractionSystem.MouseButton BlueprintButton;
+        internal static MouseApplianceInteractionSystem.MouseButton MiscellaneousButton;
 
+        private readonly Harmony _harmony;
+        private static List<Assembly> PatchedAssemblies = new List<Assembly>();
 
-        public Main() : base(MOD_GUID, MOD_NAME, MOD_AUTHOR, MOD_VERSION, MOD_GAMEVERSION, Assembly.GetExecutingAssembly()) { }
-
-        internal static EntityQuery Players;
-
-        internal static bool IsPauseMenuOpen = false;
-
-        protected override void OnInitialise()
+        public Main()
         {
-            // For log file output so the official plateup support staff can identify if/which a mod is being used
+            if (_harmony == null)
+            {
+                _harmony = new Harmony(MOD_GUID);
+            }
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            if (assembly != null && !PatchedAssemblies.Contains(assembly))
+            {
+                _harmony.PatchAll(assembly);
+                PatchedAssemblies.Add(assembly);
+            }
+        }
+
+        public void PostActivate(Mod mod)
+        {
             LogWarning($"{MOD_GUID} v{MOD_VERSION} in use!");
-
-            instance = this;
-
-            if (Session.CurrentGameNetworkMode == GameNetworkMode.Host)
-            {
-                m_harmony.PatchAll(Assembly.GetExecutingAssembly());
-                Players = GetEntityQuery(typeof(CPlayer));
-            }
-        }
-        
-        protected override void OnUpdate()
-        {
-            Players = GetEntityQuery(typeof(CPlayer));
-
-            GameObject pauseMenuPopup = GameObject.Find("Player Pause Popup");
-            if (pauseMenuPopup != null)
-            {
-                Transform container = pauseMenuPopup.transform.Find("Container");
-                IsPauseMenuOpen = container.gameObject.activeSelf;
-            }
-        }
-
-        protected override void OnPostActivate(Mod mod)
-        {
             RegisterPreferences();
-            RegisterMenu();
+            InitButtons();
         }
+
+        public void PreInject() { }
+
+        public void PostInject() { }
 
         protected void RegisterPreferences()
         {
-            Manager = new PreferenceManager(MOD_GUID);
-            GrabButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(GRAB_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Left));
-            ActButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(ACT_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Right));
-            PingButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(PING_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
-            BlueprintButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(BLUEPRINT_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
-            MiscellaneousButtonPreference = Manager.RegisterPreference<PreferenceMouseButton>(new PreferenceMouseButton(MISCELLANEOUS_BUTTON_PREF_ID, MouseApplianceInteractionSystem.MouseButton.Middle));
-            Manager.Load();
+            PrefManager = new PreferenceSystemManager(MOD_GUID, MOD_NAME);
+
+            string[] mouseButtons = new string[]
+            {
+                MouseApplianceInteractionSystem.MouseButton.Left.ToString(),
+                MouseApplianceInteractionSystem.MouseButton.Right.ToString(),
+                MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
+                MouseApplianceInteractionSystem.MouseButton.Forward.ToString(),
+                MouseApplianceInteractionSystem.MouseButton.Back.ToString()
+            };
+
+            string[] mouseButtonTexts = new string[]
+            {
+                "Left Click",
+                "Right Click",
+                "Middle Click",
+                "Forward Button",
+                "Back Button"
+            };
+
+            PrefManager
+                .AddLabel("Drag N' Drop Controls")
+                .AddSpacer()
+                .AddLabel("Grab")
+                .AddOption<string>(
+                    GRAB_BUTTON_PREF_ID,
+                    MouseApplianceInteractionSystem.MouseButton.Left.ToString(),
+                    mouseButtons,
+                    mouseButtonTexts,
+                    delegate (string value)
+                    {
+                        UpdateButton(ref GrabButton, value);
+                    })
+                .AddLabel("Act")
+                .AddOption<string>(
+                    ACT_BUTTON_PREF_ID,
+                    MouseApplianceInteractionSystem.MouseButton.Right.ToString(),
+                    mouseButtons,
+                    mouseButtonTexts,
+                    delegate (string value)
+                    {
+                        UpdateButton(ref ActButton, value);
+                    })
+                .AddLabel("Ping")
+                .AddOption<string>(
+                    PING_BUTTON_PREF_ID,
+                    MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
+                    mouseButtons,
+                    mouseButtonTexts,
+                    delegate (string value)
+                    {
+                        UpdateButton(ref PingButton, value);
+                    })
+                .AddLabel("Store/Retrieve Blueprint")
+                .AddOption<string>(
+                    BLUEPRINT_BUTTON_PREF_ID,
+                    MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
+                    mouseButtons,
+                    mouseButtonTexts,
+                    delegate (string value)
+                    {
+                        UpdateButton(ref BlueprintButton, value);
+                    })
+                .AddLabel("Miscellaneous Action")
+                .AddOption<string>(
+                    MISCELLANEOUS_BUTTON_PREF_ID,
+                    MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
+                    mouseButtons,
+                    mouseButtonTexts,
+                    delegate (string value)
+                    {
+                        UpdateButton(ref MiscellaneousButton, value);
+                    })
+                .AddSpacer()
+                .AddSpacer();
+
+            PrefManager.RegisterMenu(PreferenceSystemManager.MenuType.PauseMenu);
         }
 
-        protected void RegisterMenu()
+        private void UpdateButton(ref MouseApplianceInteractionSystem.MouseButton button, string value)
         {
-            Events.PreferenceMenu_PauseMenu_CreateSubmenusEvent += (s, args) =>
+            if (!Enum.TryParse(value, true, out button))
             {
-                args.Menus.Add(typeof(DragNDropMenu<PauseMenuAction>), new DragNDropMenu<PauseMenuAction>(args.Container, args.Module_list));
-            };
-            ModsPreferencesMenu<PauseMenuAction>.RegisterMenu(MOD_NAME, typeof(DragNDropMenu<PauseMenuAction>), typeof(PauseMenuAction));
+                LogError($"Failed to parse {value} to {typeof(MouseApplianceInteractionSystem.MouseButton)}.");
+                button = default;
+            }
+        }
+
+        private void InitButtons()
+        {
+            UpdateButton(ref GrabButton, PrefManager.Get<string>(GRAB_BUTTON_PREF_ID));
+            UpdateButton(ref ActButton, PrefManager.Get<string>(ACT_BUTTON_PREF_ID));
+            UpdateButton(ref PingButton, PrefManager.Get<string>(PING_BUTTON_PREF_ID));
+            UpdateButton(ref BlueprintButton, PrefManager.Get<string>(BLUEPRINT_BUTTON_PREF_ID));
+            UpdateButton(ref MiscellaneousButton, PrefManager.Get<string>(MISCELLANEOUS_BUTTON_PREF_ID));
         }
 
         #region Logging
@@ -104,114 +164,5 @@ namespace KitchenDragNDropDesigner
         public static void LogWarning(object _log) { LogWarning(_log.ToString()); }
         public static void LogError(object _log) { LogError(_log.ToString()); }
         #endregion
-    }
-
-    internal class PreferenceMouseButton : PreferenceBase<MouseApplianceInteractionSystem.MouseButton>
-    {
-        
-        public PreferenceMouseButton(string key, MouseApplianceInteractionSystem.MouseButton defaultValue = MouseApplianceInteractionSystem.MouseButton.Left)
-            : base(key, defaultValue)
-        {
-        }
-
-        public override void Deserialize(string json)
-        {
-            base.Value = (MouseApplianceInteractionSystem.MouseButton)Enum.Parse(typeof(MouseApplianceInteractionSystem.MouseButton), json);
-        }
-
-        public override string Serialize()
-        {
-            return base.Value.ToString();
-        }
-    }
-
-    public class DragNDropMenu<T> : KLMenu<T>
-    {
-        Option<MouseApplianceInteractionSystem.MouseButton> GrabOption;
-        Option<MouseApplianceInteractionSystem.MouseButton> ActOption;
-        Option<MouseApplianceInteractionSystem.MouseButton> PingOption;
-        Option<MouseApplianceInteractionSystem.MouseButton> BlueprintOption;
-        Option<MouseApplianceInteractionSystem.MouseButton> MiscOption;
-
-        readonly List<MouseApplianceInteractionSystem.MouseButton> values = new List<MouseApplianceInteractionSystem.MouseButton>
-        {
-            MouseApplianceInteractionSystem.MouseButton.Left,
-            MouseApplianceInteractionSystem.MouseButton.Right,
-            MouseApplianceInteractionSystem.MouseButton.Middle,
-            MouseApplianceInteractionSystem.MouseButton.Forward,
-            MouseApplianceInteractionSystem.MouseButton.Back
-        };
-
-        readonly List<string> texts = new List<string>
-        {
-            "Left Click",
-            "Right Click",
-            "Middle Click",
-            "Forward Button",
-            "Back Button"
-        };
-
-        public DragNDropMenu(Transform container, ModuleList module_list) : base(container, module_list)
-        {
-        }
-
-        public override void Setup(int player_id)
-        {
-            AddLabel("Drag N' Drop Controls");
-            New<SpacerElement>();
-
-            AddLabel("Grab");
-            GrabOption = new Option<MouseApplianceInteractionSystem.MouseButton>(
-                values, Main.GrabButtonPreference.Get(), texts);
-            Add<MouseApplianceInteractionSystem.MouseButton>(GrabOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
-            {
-                Main.GrabButtonPreference.Set(value);
-                Main.Manager.Save();
-            };
-
-            AddLabel("Act");
-            ActOption = new Option<MouseApplianceInteractionSystem.MouseButton>(
-                values, Main.ActButtonPreference.Get(), texts);
-            Add<MouseApplianceInteractionSystem.MouseButton>(ActOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
-            {
-                Main.ActButtonPreference.Set(value);
-                Main.Manager.Save();
-            };
-
-            AddLabel("Ping");
-            PingOption = new Option<MouseApplianceInteractionSystem.MouseButton>(
-                values, Main.PingButtonPreference.Get(), texts);
-            Add<MouseApplianceInteractionSystem.MouseButton>(PingOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
-            {
-                Main.PingButtonPreference.Set(value);
-                Main.Manager.Save();
-            };
-
-            AddLabel("Store/Retrieve Blueprint");
-            BlueprintOption = new Option<MouseApplianceInteractionSystem.MouseButton>(
-                values, Main.BlueprintButtonPreference.Get(), texts);
-            Add<MouseApplianceInteractionSystem.MouseButton>(BlueprintOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
-            {
-                Main.BlueprintButtonPreference.Set(value);
-                Main.Manager.Save();
-            };
-
-            AddLabel("Miscellaneous Action");
-            MiscOption = new Option<MouseApplianceInteractionSystem.MouseButton>(
-                values, Main.MiscellaneousButtonPreference.Get(), texts);
-            Add<MouseApplianceInteractionSystem.MouseButton>(MiscOption).OnChanged += delegate (object _, MouseApplianceInteractionSystem.MouseButton value)
-            {
-                Main.MiscellaneousButtonPreference.Set(value);
-                Main.Manager.Save();
-            };
-
-            New<SpacerElement>();
-            New<SpacerElement>();
-
-            AddButton(base.Localisation["MENU_BACK_SETTINGS"], delegate
-            {
-                RequestPreviousMenu();
-            });
-        }
     }
 }
