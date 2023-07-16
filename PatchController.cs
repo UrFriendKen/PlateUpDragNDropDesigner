@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Entities;
+using UnityEngine;
 
 namespace KitchenDragNDropDesigner
 {
@@ -42,6 +43,11 @@ namespace KitchenDragNDropDesigner
         internal static EntityQuery GetEntityQueryStatic(params EntityQueryDesc[] queryDesc)
         {
             return _instance?.GetEntityQuery(queryDesc) ?? default;
+        }
+
+        internal static bool CanReachIfNotPickedUpByMouse(bool isPickedUpByMouse, Vector3 from, Vector3 to, bool do_not_swap = false)
+        {
+            return isPickedUpByMouse || (_instance?.CanReach(from, to, do_not_swap) ?? true);
         }
     }
 }
