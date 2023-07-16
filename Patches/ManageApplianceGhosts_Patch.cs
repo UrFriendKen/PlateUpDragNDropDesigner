@@ -86,10 +86,8 @@ namespace KitchenDragNDropDesigner.Patches
                 PatchController.RequireStatic(player, out CPlayer cPlayer) &&
                 MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
             {
-                Main.LogWarning("Mouse");
                 interact.Location = MouseHelpers.MousePlanePos();
             }
-            Main.LogInfo(interact.Location);
         }
 
         [HarmonyTranspiler]
