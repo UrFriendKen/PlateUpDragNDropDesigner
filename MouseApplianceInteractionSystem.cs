@@ -103,9 +103,9 @@ namespace KitchenDragNDropDesigner
             }
         }
 
-        protected Entity UpdateMouseTarget(ref InteractionData data, OccupancyLayer layer)
+        protected Entity UpdateMouseTarget(ref InteractionData data, OccupancyLayer layer, bool ignorePress = false)
         {
-            if (IsMouseButtonPressed)
+            if (ignorePress || IsMouseButtonPressed)
             {
                 data.Attempt.Location = MouseHelpers.MousePlanePos();
                 Entity newTarget = layer != OccupancyLayer.Default ? GetOccupant(data.Attempt.Location, layer) : GetPrimaryOccupant(data.Attempt.Location);

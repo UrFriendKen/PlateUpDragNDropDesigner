@@ -26,7 +26,7 @@ namespace KitchenDragNDropDesigner
 
         protected override void UpdateInteractionData(ref InteractionData interaction_data)
         {
-            UpdateMouseTarget(ref interaction_data, OccupancyLayer.Default);
+            UpdateMouseTarget(ref interaction_data, OccupancyLayer.Default, ignorePress: true);
         }
     }
 }
