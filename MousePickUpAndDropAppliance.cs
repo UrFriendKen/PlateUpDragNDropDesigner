@@ -4,6 +4,7 @@ using KitchenDragNDropDesigner.Helpers;
 using KitchenDragNDropDesigner.Patches;
 using Unity.Entities;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace KitchenDragNDropDesigner
 {
@@ -127,45 +128,48 @@ namespace KitchenDragNDropDesigner
           bool isMouseInteraction)
         {
             EntityManager entityManager = EntityManager;
-            bool flag = false;
-
+            bool performed = false;
+            Entity occupant = default;
             if (!CanReach((Vector3)pos, interact.Location) && !isMouseInteraction)
-                return flag;
+                return performed;
+            occupant = ((layer != 0) ? GetOccupant(interact.Location, layer) : GetPrimaryOccupant(interact.Location));
+            
+            if (occupant == default)
+            {
+                occupant = interact.Target;
+                if (!Require(occupant, out CPosition occupantPosition) || !occupantPosition.Position.IsSameTile(interact.Location))
+                    return false;
+            }
 
-                CPosition comp;
-            if (!Require<CPosition>(interact.Target, out comp) || !comp.Position.IsSameTile(interact.Location))
-                return false;
-
-            CAppliance component;
-            if (entityManager.RequireComponent<CAppliance>(interact.Target, out component) && !HasComponent<CHeldAppliance>(interact.Target) && !HasComponent<CImmovable>(interact.Target))
+            if (entityManager.RequireComponent(occupant, out CAppliance appliance) && !HasComponent<CHeldAppliance>(occupant) && !HasComponent<CImmovable>(occupant))
             {
                 if (should_act)
                 {
-                    ctx.Add<CHeldAppliance>(interact.Target);
-                    ctx.Add<CHeldBy>(interact.Target);
-                    ctx.Add<CRemoveView>(interact.Target);
-                    ctx.Set<CRequiresView>(interact.Target, new CRequiresView()
+                    ctx.Add<CHeldAppliance>(occupant);
+                    ctx.Add<CHeldBy>(occupant);
+                    ctx.Add<CRemoveView>(occupant);
+                    ctx.Set(occupant, new CRequiresView()
                     {
                         Type = ViewType.HeldAppliance
                     });
-                    ctx.Set<CHeldBy>(interact.Target, new CHeldBy()
+                    ctx.Set(occupant, new CHeldBy()
                     {
                         Holder = player
                     });
-                    ctx.Set<CPosition>(interact.Target, CPosition.Hidden);
-                    ctx.Set<CItemHolder>(player, new CItemHolder()
+                    ctx.Set(occupant, CPosition.Hidden);
+                    ctx.Set(player, new CItemHolder()
                     {
-                        HeldItem = interact.Target
+                        HeldItem = occupant
                     });
-                    SetOccupant(interact.Location, new Entity(), component.Layer);
+                    SetOccupant(interact.Location, new Entity(), appliance.Layer);
 
-                    if (Require<CPlayer>(player, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
+                    if (Require(player, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
                         ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = isMouseInteraction;
                 }
-                flag = true;
+                performed = true;
                 interact.Result = should_act ? InteractionResult.Performed : InteractionResult.Possible;
             }
-            return flag;
+            return performed;
         }
 
         protected override void OnCreateForCompiler() => base.OnCreateForCompiler();
