@@ -49,7 +49,7 @@ namespace KitchenDragNDropDesigner
             EntityManager entityManager = EntityManager;
 
             Bounds includeOutside = Bounds;
-            includeOutside.Encapsulate(GetFrontDoor() + new Vector3(0f, 0f, -2f));
+            includeOutside.Encapsulate(GetFrontDoor() + new Vector3(0f, 0f, -3f));
             includeOutside.Expand(0.5f);
 
             if ((!CanReach((Vector3)pos, interact.Location) && !isMouseInteraction) || GetFrontDoor().IsSameTile(interact.Location) || GetFrontDoor(true).IsSameTile(interact.Location) || !includeOutside.Contains(interact.Location))
