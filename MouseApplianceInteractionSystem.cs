@@ -7,8 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace KitchenDragNDropDesigner
 {
-
-    internal abstract class MouseApplianceInteractionSystem : ApplianceInteractionSystem
+    public abstract class MouseApplianceInteractionSystem : ApplianceInteractionSystem
     {
         protected bool MadeChanges = default;
         protected CPosition Position;

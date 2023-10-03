@@ -35,7 +35,6 @@ namespace KitchenDragNDropDesigner
             {
                 return false;
             }
-            data.Attempt.Result = InteractionResult.Possible;
             return true;
 
         }

@@ -2,14 +2,14 @@
 using KitchenData;
 using KitchenDragNDropDesigner.Helpers;
 using KitchenDragNDropDesigner.Patches;
+using KitchenMods;
 using Unity.Entities;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace KitchenDragNDropDesigner
 {
     [UpdateBefore(typeof(PickUpAndDropAppliance))]
-    internal class MousePickUpAndDropAppliance : MouseApplianceInteractionSystem
+    public class MousePickUpAndDropAppliance : MouseApplianceInteractionSystem
     {
         private CItemHolder Holder;
 
@@ -156,6 +156,13 @@ namespace KitchenDragNDropDesigner
                     {
                         Holder = player
                     });
+                    if (isMouseInteraction && ctx.Require(occupant, out CPosition occupantPos))
+                    {
+                        ctx.Set(occupant, new CCachedRotation()
+                        {
+                            Rotation = occupantPos.Rotation
+                        });
+                    }
                     ctx.Set(occupant, CPosition.Hidden);
                     ctx.Set(player, new CItemHolder()
                     {

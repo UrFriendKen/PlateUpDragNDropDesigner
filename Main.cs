@@ -12,13 +12,14 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "1.0.5";
+        public const string MOD_VERSION = "1.0.6";
 
-        internal static string GRAB_BUTTON_PREF_ID = "grabButton";
-        internal static string ACT_BUTTON_PREF_ID = "actButton";
-        internal static string PING_BUTTON_PREF_ID = "pingButton";
-        internal static string BLUEPRINT_BUTTON_PREF_ID = "blueprintButton";
-        internal static string MISCELLANEOUS_BUTTON_PREF_ID = "miscButton";
+        internal const string MAINTAIN_ORIENTATION_ID = "meintainOrientation";
+        internal const string GRAB_BUTTON_PREF_ID = "grabButton";
+        internal const string ACT_BUTTON_PREF_ID = "actButton";
+        internal const string PING_BUTTON_PREF_ID = "pingButton";
+        internal const string BLUEPRINT_BUTTON_PREF_ID = "blueprintButton";
+        internal const string MISCELLANEOUS_BUTTON_PREF_ID = "miscButton";
 
         internal static PreferenceSystemManager PrefManager;
 
@@ -131,6 +132,13 @@ namespace KitchenDragNDropDesigner
                     {
                         UpdateButton(ref MiscellaneousButton, value);
                     })
+                .AddSpacer()
+                .AddLabel("Maintain Appliance Rotation")
+                .AddOption<bool>(
+                    MAINTAIN_ORIENTATION_ID,
+                    false,
+                    new bool[] { false, true },
+                    new string[] { "Disabled", "Enabled" })
                 .AddSpacer()
                 .AddSpacer();
 
