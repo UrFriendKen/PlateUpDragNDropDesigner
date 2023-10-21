@@ -35,6 +35,8 @@ namespace KitchenDragNDropDesigner
                 for (int i = 0; i < entities.Length; i++)
                 {
                     Entity entity = entities[i];
+                    if (Has<CFixedRotation>(entity) || Has<CMustHaveWall>(entity))
+                        continue;
                     CPosition position = positions[i];
                     CCachedRotation cache = orientations[i];
                     position.Rotation = cache.Rotation;

@@ -12,7 +12,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "1.0.6";
+        public const string MOD_VERSION = "1.0.7";
 
         internal const string MAINTAIN_ORIENTATION_ID = "meintainOrientation";
         internal const string GRAB_BUTTON_PREF_ID = "grabButton";
