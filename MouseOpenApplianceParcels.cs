@@ -7,10 +7,9 @@ namespace KitchenDragNDropDesigner
     internal class MouseOpenApplianceParcels : MouseApplianceInteractionSystem
     {
         private CLetterAppliance Letter;
+        protected override CMouseData.Action Action => CMouseData.Action.Grab;
 
-        protected override MouseButton Button => Main.GrabButton;
-
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             return Require<CLetterAppliance>(data.Target, out Letter) && Require<CPosition>(data.Target, out Position);
         }

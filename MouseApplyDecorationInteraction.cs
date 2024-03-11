@@ -21,7 +21,7 @@ namespace KitchenDragNDropDesigner
 
         private NativeArray<Entity> ChangeDecorEntities;
 
-        protected override MouseButton Button => Main.ActButton;
+        protected override CMouseData.Action Action => CMouseData.Action.Act;
 
         protected override void Initialise()
         {
@@ -43,7 +43,7 @@ namespace KitchenDragNDropDesigner
             base.AfterRun();
         }
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (!Require<CItemHolder>(data.Interactor, out ItemHolder) || ItemHolder.HeldItem == default(Entity))
             {

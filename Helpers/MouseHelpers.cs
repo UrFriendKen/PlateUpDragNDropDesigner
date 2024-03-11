@@ -1,11 +1,11 @@
 ﻿using Controllers;
 using Kitchen;
+using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UniverseLib;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace KitchenDragNDropDesigner.Helpers
 {
@@ -42,7 +42,7 @@ namespace KitchenDragNDropDesigner.Helpers
             {
                 if (attempt.Type == playerAttempts[i].Type &&
                     attempt.Target == playerAttempts[i].Target &&
-                    (attempt.Location - playerAttempts[i].Location).sqrMagnitude < 0.01f)
+                    (attempt.Location - playerAttempts[i].Location).sqrMagnitude < 0.0001f)
                 {
                     entity = entities[i];
                     return true;
@@ -52,63 +52,23 @@ namespace KitchenDragNDropDesigner.Helpers
             return false;
         }
 
-        /// <summary>
-        /// Check if player is local and is using a keyboard. Failing that, whether the player is the first local player.
-        /// </summary>
-        /// <returns>true if player matches description; otherwise false</returns>
-        public static bool IsKeyboardOrFirstLocalPlayer(CPlayer cPlayer)
+        internal static bool TryGetBoundMouseButton(string prefKey, out MouseApplianceInteractionSystem.MouseButton button)
         {
-            int? firstLocalPlayerIndex = null;
-            NativeArray<CPlayer> players = PatchController.Players.ToComponentDataArray<CPlayer>(Allocator.Temp);
-            foreach (var player in players)
-            {
-                if (player.InputSource == InputSourceIdentifier.Identifier.Value)
-                {
-                    if (!firstLocalPlayerIndex.HasValue || player.Index < firstLocalPlayerIndex)
-                    {
-                        firstLocalPlayerIndex = player.Index;
-                    }
-                    continue;
-                }
+            return Enum.TryParse(Main.PrefManager.Get<string>(prefKey), true, out button);
+        }
 
-                if (player.InputSource == cPlayer.InputSource)
-                {
-                    break;
-                }
-            }
-            players.Dispose();
-            if (!firstLocalPlayerIndex.HasValue)
+        internal static bool IsMouseButtonPressed(string prefKey)
+        {
+            if (!TryGetBoundMouseButton(prefKey, out MouseApplianceInteractionSystem.MouseButton button))
             {
-                //Main.LogInfo("Is Remote Player");
+                Main.LogError($"Failed to parse {prefKey} to {typeof(MouseApplianceInteractionSystem.MouseButton)}.");
                 return false;
             }
-
-            //InputDevice keyboard = null;
-            //int i = 0;
-            //foreach (InputDevice device in InputSystem.devices)
-            //{
-            //    if (device is Keyboard)
-            //    {
-            //        keyboard = device;
-            //        break;
-            //    }
-            //}
-            //Main.LogInfo(Players.Main.Get(cPlayer.ID).Identifier.Value);
-            //InputDevice playerDevice = InputSystem.GetDeviceById(Players.Main.Get(cPlayer.ID).Identifier.Value);
-            //Main.LogInfo($"Device ID = {playerDevice.deviceId}");
-            //if (playerDevice is Keyboard)// keyboard)
-            //{
-            //    Main.LogInfo("Is Keyboard Player");
-            //    return true;
-            //}
-
-            //Main.LogInfo($"{(cPlayer.Index == firstLocalPlayerIndex ? "Is First Player" : "Not First Player")}");
-            return cPlayer.Index == firstLocalPlayerIndex;
+            return IsMouseButtonPressed(button);
         }
 
         internal static bool IsMouseButtonPressed(MouseApplianceInteractionSystem.MouseButton button)
         {
-
             switch (button)
             {
                 case MouseApplianceInteractionSystem.MouseButton.Left:
@@ -121,6 +81,40 @@ namespace KitchenDragNDropDesigner.Helpers
                     return Mouse.current.forwardButton.IsPressed();
                 case MouseApplianceInteractionSystem.MouseButton.Back:
                     return Mouse.current.backButton.IsPressed();
+                default:
+                    return false;
+            }
+        }
+
+        static Dictionary<string, string> _prefKeyToAction = new Dictionary<string, string>()
+        {
+            { Main.GRAB_BUTTON_PREF_ID, Controls.Interact1 },
+            { Main.ACT_BUTTON_PREF_ID, Controls.Interact2 },
+            { Main.PING_BUTTON_PREF_ID, Controls.Interact4 }
+        };
+
+        internal static bool IsBindingConflict(int playerID, string prefKey)
+        {
+            if (!_prefKeyToAction.TryGetValue(prefKey, out string action) || !TryGetBoundMouseButton(prefKey, out MouseApplianceInteractionSystem.MouseButton button))
+                return false;
+            return IsBindingConflict(playerID, button, action);
+        }
+
+        internal static bool IsBindingConflict(int playerID, MouseApplianceInteractionSystem.MouseButton button, string action)
+        {
+            string bindingName = InputSourceIdentifier.DefaultInputSource.GetBindingName(playerID, action);
+            switch (button)
+            {
+                case MouseApplianceInteractionSystem.MouseButton.Left:
+                    return bindingName == "leftButton";
+                case MouseApplianceInteractionSystem.MouseButton.Middle:
+                    return bindingName == "middleButton";
+                case MouseApplianceInteractionSystem.MouseButton.Right:
+                    return bindingName == "rightButton";
+                case MouseApplianceInteractionSystem.MouseButton.Forward:
+                    return bindingName == "forwardButton";
+                case MouseApplianceInteractionSystem.MouseButton.Back:
+                    return bindingName == "backButton";
                 default:
                     return false;
             }

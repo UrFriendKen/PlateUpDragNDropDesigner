@@ -1,10 +1,4 @@
 ﻿using Kitchen;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Unity.Entities;
 
 namespace KitchenDragNDropDesigner
@@ -13,10 +7,10 @@ namespace KitchenDragNDropDesigner
     internal class MouseInteractRotatePushDuringNight : MouseApplianceInteractionSystem
     {
         private CConveyPushRotatable Rotatable;
-        protected override MouseButton Button => Main.MiscellaneousButton;
+        protected override CMouseData.Action Action => CMouseData.Action.Miscellaneous;
         protected override InteractionType RequiredType => InteractionType.Notify;
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (!Require(data.Target, out Rotatable))
             {

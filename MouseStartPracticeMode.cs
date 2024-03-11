@@ -19,7 +19,7 @@ namespace KitchenDragNDropDesigner
 
         protected override InteractionType RequiredType => InteractionType.Act;
 
-        protected override MouseButton Button => Main.ActButton;
+        protected override CMouseData.Action Action => CMouseData.Action.Act;
 
         private EntityQuery StartDayWarnings;
 
@@ -46,7 +46,7 @@ namespace KitchenDragNDropDesigner
             }
         }
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (!HasComponent<CTriggerPracticeMode>(data.Target))
             {

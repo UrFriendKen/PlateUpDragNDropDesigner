@@ -14,10 +14,9 @@ namespace KitchenDragNDropDesigner
     {
         private CLetterIngredient Letter;
         protected override bool AllowActOrGrab => true;
+        protected override CMouseData.Action Action => CMouseData.Action.Grab;
 
-        protected override MouseButton Button => Main.GrabButton;
-
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (!Require<CLetterIngredient>(data.Target, out Letter))
             {

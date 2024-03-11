@@ -1,28 +1,33 @@
 ﻿using Controllers;
 using Kitchen;
 using KitchenData;
-using KitchenDragNDropDesigner.Helpers;
+using KitchenMods;
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Entities;
 
 namespace KitchenDragNDropDesigner
 {
-    internal class MouseRemotePseudoInteraction : RestaurantSystem
+    internal class MouseRemotePseudoInteraction : NightSystem, IModSystem
     {
-        private struct SInteractionProxyMarker : IComponentData { }
+        private struct CLinkedInteractionProxy : IComponentData, IModComponent
+        {
+            public Entity Proxy;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = 1)]
+        private struct CInteractionProxyMarker : IComponentData, IModComponent { }
 
         EntityQuery Players;
-
-        bool wasPressed = false;
 
         MethodInfo HasSRerollTrigger;
 
         protected override void Initialise()
         {
             base.Initialise();
-            Players = GetEntityQuery(typeof(CPlayer));
+            Players = GetEntityQuery(typeof(CPlayer), typeof(CMouseData));
 
             Type sRerollTriggerType = typeof(CreateRerollTrigger).GetNestedType("SRerollTrigger", BindingFlags.NonPublic);
             MethodInfo hasMethod = typeof(GenericSystemBase).GetMethod("Has", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(Entity) }, null);
@@ -31,64 +36,72 @@ namespace KitchenDragNDropDesigner
 
         protected override void OnUpdate()
         {
-            bool performed = false;
-            
-            CPosition position = MouseHelpers.MousePlanePos();
-            position.ForceSnap = false;
-            Entity entity = GetOccupant(position, OccupancyLayer.Default);
+            using NativeArray<Entity> entities = Players.ToEntityArray(Allocator.Temp);
+            using NativeArray<CMouseData> mouseDatas = Players.ToComponentDataArray<CMouseData>(Allocator.Temp);
 
-            if (Has<SIsNightTime>() && (Has<CApplianceChair>(entity) || (bool)HasSRerollTrigger.Invoke(this, new object[] { entity })) && 
-                MouseHelpers.IsMouseButtonPressed(Main.ActButton))
+            for (int i = 0; i < entities.Length; i++)
             {
-                wasPressed = true;
-                NativeArray<Entity> players = Players.ToEntityArray(Allocator.Temp);
-                foreach(Entity player in players)
+                Entity entity = entities[i];
+                CMouseData mouseData = mouseDatas[i];
+                CPosition position = mouseData.Position;
+
+                Entity occupant = GetOccupant(mouseData.Position, OccupancyLayer.Default);
+                bool hasLinkedInteractionProxy = Require(entity, out CLinkedInteractionProxy cLinkedInteractionProxy);
+
+                ButtonState actButtonState = mouseData.GetButtonState(CMouseData.Action.Act);
+                if (actButtonState != ButtonState.Held ||
+                    (!Has<CApplianceChair>(occupant) &&
+                    !(bool)HasSRerollTrigger.Invoke(this, new object[] { occupant })))
                 {
-                    if (Require<CPlayer>(player, out CPlayer cPlayer) && cPlayer.InputSource == InputSourceIdentifier.Identifier.Value)
+                    if (hasLinkedInteractionProxy)
                     {
-                        Entity interactionProxy;
-                        if (!TryGetSingletonEntity<SInteractionProxyMarker>(out interactionProxy))
-                        {
-                            interactionProxy = EntityManager.CreateEntity(typeof(SInteractionProxyMarker));
-                            Set(interactionProxy, new CIsInteractor
-                            {
-                                InteractionOffset = 0f,
-                                InteractionRadius = 0.7f,
-                                Mode = InteractionMode.Appliances
-                            });
-                            Set<CDoNotPersist>(interactionProxy);
-                        }
-                        Set(interactionProxy, position);
-
-
-                        Set(interactionProxy, new CAttemptingInteraction()
-                        {
-                            Target = entity,
-                            Type = InteractionType.Act,
-                            Result = InteractionResult.Performed,
-                            IsHeld = false,
-                            Location = position,
-                            Mode = InteractionMode.Appliances,
-                        });
-
-                        Set(interactionProxy, new CInputData
-                        {
-                            State = new InputState
-                            {
-                                InteractAction = ButtonState.Held
-                            }
-                        });
-                        performed = true;
+                        if (cLinkedInteractionProxy.Proxy != default)
+                            EntityManager.DestroyEntity(cLinkedInteractionProxy.Proxy);
+                        EntityManager.RemoveComponent<CLinkedInteractionProxy>(entity);
                     }
+                    continue;
                 }
-                players.Dispose();
-            }
 
+                Entity interactionProxy;
+                if (!hasLinkedInteractionProxy)
+                {
+                    interactionProxy = EntityManager.CreateEntity(typeof(CInteractionProxyMarker));
+                    Set(interactionProxy, new CIsInteractor
+                    {
+                        InteractionOffset = 0f,
+                        InteractionRadius = 0.7f,
+                        Mode = InteractionMode.Appliances
+                    });
+                    Set<CDoNotPersist>(interactionProxy);
 
-            if (!performed && wasPressed && TryGetSingletonEntity<SInteractionProxyMarker>(out Entity toDestroy))
-            {
-                wasPressed = false;
-                EntityManager.DestroyEntity(toDestroy);
+                    Set(entity, new CLinkedInteractionProxy()
+                    {
+                        Proxy = interactionProxy
+                    });
+                }
+                else
+                {
+                    interactionProxy = cLinkedInteractionProxy.Proxy;
+                }
+                Set(interactionProxy, position);
+
+                Set(interactionProxy, new CAttemptingInteraction()
+                {
+                    Target = occupant,
+                    Type = InteractionType.Act,
+                    Result = InteractionResult.Performed,
+                    IsHeld = false,
+                    Location = position,
+                    Mode = InteractionMode.Appliances,
+                });
+
+                Set(interactionProxy, new CInputData
+                {
+                    State = new InputState
+                    {
+                        InteractAction = ButtonState.Held
+                    }
+                });
             }
         }
     }

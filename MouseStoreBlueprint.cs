@@ -18,11 +18,11 @@ namespace KitchenDragNDropDesigner
 
         private CBlueprintStore Store;
 
-        protected override MouseButton Button => Main.BlueprintButton;
+        protected override CMouseData.Action Action => CMouseData.Action.StoreRetrieveBlueprint;
 
         protected override InteractionType RequiredType => InteractionType.Grab;
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (!Require<CItemHolder>(data.Interactor, out Holder))
             {
@@ -67,22 +67,16 @@ namespace KitchenDragNDropDesigner
                 Store.BlueprintID = Appliance.ID;
                 Store.HasBeenCopied = false;
                 Store.HasBeenMadeFree = false;
-                SetComponent(data.Target, Store);
+                data.Context.Set(data.Target, Store);
                 data.Attempt.Result = InteractionResult.Performed;
-
-                if (Require<CPlayer>(data.Interactor, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
-                    ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = false;
             }
             else if (!Store.HasBeenCopied && Store.Price == Sale.Price && Store.ApplianceID == Blueprint.Appliance)
             {
                 data.Context.Destroy(Holder.HeldItem);
                 data.Context.Set(data.Interactor, default(CItemHolder));
                 Store.HasBeenCopied = true;
-                SetComponent(data.Target, Store);
+                data.Context.Set(data.Target, Store);
                 data.Attempt.Result = InteractionResult.Performed;
-
-                if (Require<CPlayer>(data.Interactor, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
-                    ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = false;
             }
         }
     }

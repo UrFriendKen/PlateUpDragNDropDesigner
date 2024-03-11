@@ -1,5 +1,4 @@
 ﻿using Kitchen;
-using KitchenData;
 using System;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,13 +8,13 @@ namespace KitchenDragNDropDesigner
 {
     internal class MouseRotateAppliances : MouseApplianceInteractionSystem
     {
-        protected override MouseButton Button => Main.ActButton;
+        protected override CMouseData.Action Action => CMouseData.Action.Act;
 
         protected override InteractionType RequiredType => InteractionType.Act;
 
         protected override bool UseImmediateContext => true;
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             return Require<CPosition>(data.Attempt.Target, out Position) &&
                 !Has<CMustHaveWall>(data.Attempt.Target) &&
@@ -25,7 +24,7 @@ namespace KitchenDragNDropDesigner
 
         protected override void Perform(ref InteractionData data)
         {
-            bool isMouseInteraction = IsMouseButtonPressed;
+            bool isMouseInteraction = IsMouseButtonPressed || IsSharedActionBinding;
 
             CAttemptingInteraction attempt = data.Attempt;
             bool flagChangesDone = PerformRotate(ref attempt, in Position, data.ShouldAct, isMouseInteraction);

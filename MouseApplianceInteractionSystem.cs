@@ -1,9 +1,7 @@
 ﻿using Controllers;
 using Kitchen;
 using KitchenData;
-using KitchenDragNDropDesigner.Helpers;
 using Unity.Entities;
-using UnityEngine.InputSystem;
 
 namespace KitchenDragNDropDesigner
 {
@@ -22,33 +20,18 @@ namespace KitchenDragNDropDesigner
             Back
         }
 
-        protected bool IsMouseButtonPressed
-        {
-            get
-            {
-                switch (Button)
-                {
-                    case MouseButton.Left:
-                        return Mouse.current.leftButton.IsPressed();
-                    case MouseButton.Middle:
-                        return Mouse.current.middleButton.IsPressed();
-                    case MouseButton.Right:
-                        return Mouse.current.rightButton.IsPressed();
-                    case MouseButton.Forward:
-                        return Mouse.current.forwardButton.IsPressed();
-                    case MouseButton.Back:
-                        return Mouse.current.backButton.IsPressed();
-                    default:
-                        return false;
-                }
-            }
-        }
-
-        protected bool IsMouseButtonWasDown { get; private set; }
+        protected bool WasMouseButtonDown { get; private set; }
 
         protected virtual bool AllowHold => false;
 
-        protected virtual MouseButton Button => MouseButton.Left;
+        protected virtual CMouseData.Action Action { get; } = CMouseData.Action.Act;
+
+        CMouseData _mouseData;
+        protected bool IsMouseActive => _mouseData.Active;
+        protected bool IsMouseButtonPressed => _mouseData.GetButtonState(Action) == ButtonState.Pressed || IsMouseButtonHeld;
+        protected bool IsMouseButtonHeld => _mouseData.GetButtonState(Action) == ButtonState.Held;
+        protected bool IsMouseButtonActive => IsMouseButtonPressed && (AllowHold || !IsMouseButtonHeld);
+        protected bool IsSharedActionBinding => _mouseData.ShouldOverridePosition(Action);
 
         protected override bool BeforeRun()
         {
@@ -69,49 +52,54 @@ namespace KitchenDragNDropDesigner
                 EntityManager.CreateEntity((ComponentType)typeof(SPerformTableUpdate));
         }
 
+        protected abstract bool IsPossibleCondition(ref InteractionData data);
+
+        protected sealed override bool IsPossible(ref InteractionData data)
+        {
+            //if (!Require(data.Interactor, out CMouseData mouseData) ||
+            //    !mouseData.Active)
+            //    return false;
+
+            return IsPossibleCondition(ref data);
+        }
+
         protected override bool ShouldAct(ref InteractionData interaction_data)
         {
-            if (Require<CPlayer>(interaction_data.Interactor, out CPlayer player))
+            _mouseData = default;
+            if (Has<CPlayer>(interaction_data.Interactor) &&
+                Require(interaction_data.Interactor, out CMouseData mouseData) &&
+                mouseData.Active)
             {
-                if (player.InputSource == InputSourceIdentifier.Identifier &&
-                    PauseMenuObserver.IsPauseMenuOpen)
-                {
-                    return false;
-                }
-
-                if (Session.CurrentGameNetworkMode == GameNetworkMode.Host &&
-                    MouseHelpers.IsKeyboardOrFirstLocalPlayer(player))
-                    UpdateInteractionData(ref interaction_data);
+                _mouseData = mouseData;
             }
-
-
+            UpdateInteractionData(ref interaction_data);
             return base.ShouldAct(ref interaction_data);
         }
 
         protected virtual void UpdateInteractionData(ref InteractionData interaction_data)
         {
-            if (IsMouseButtonPressed && (AllowHold || !IsMouseButtonWasDown))
+            if (!IsMouseActive)
+                return;
+
+            if (IsMouseButtonActive)
             {
                 interaction_data.Attempt.Type = RequiredType;
                 UpdateMouseTarget(ref interaction_data, OccupancyLayer.Default);
-                IsMouseButtonWasDown = true;
             }
-            else if (!IsMouseButtonPressed)
+
+            if (RequiredType == InteractionType.Look || IsMouseButtonActive || (interaction_data.Attempt.Type != InteractionType.Look && IsSharedActionBinding))
             {
-                IsMouseButtonWasDown = false;
+                interaction_data.Attempt.Location = _mouseData.Position;
+                UpdateMouseTarget(ref interaction_data, OccupancyLayer.Default);
             }
         }
 
-        protected Entity UpdateMouseTarget(ref InteractionData data, OccupancyLayer layer, bool ignorePress = false)
+        Entity UpdateMouseTarget(ref InteractionData data, OccupancyLayer layer)
         {
-            if (ignorePress || IsMouseButtonPressed)
+            Entity newTarget = layer != OccupancyLayer.Default ? GetOccupant(data.Attempt.Location, layer) : GetPrimaryOccupant(data.Attempt.Location);
+            if (newTarget != default && Has<CIsInteractive>(newTarget))
             {
-                data.Attempt.Location = MouseHelpers.MousePlanePos();
-                Entity newTarget = layer != OccupancyLayer.Default ? GetOccupant(data.Attempt.Location, layer) : GetPrimaryOccupant(data.Attempt.Location);
-                if (newTarget != default && Has<CIsInteractive>(newTarget))
-                {
-                    data.Attempt.Target = newTarget;
-                }
+                data.Attempt.Target = newTarget;
             }
             return data.Attempt.Target;
         }

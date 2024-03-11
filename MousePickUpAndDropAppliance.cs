@@ -1,8 +1,5 @@
 ﻿using Kitchen;
 using KitchenData;
-using KitchenDragNDropDesigner.Helpers;
-using KitchenDragNDropDesigner.Patches;
-using KitchenMods;
 using Unity.Entities;
 using UnityEngine;
 
@@ -17,9 +14,9 @@ namespace KitchenDragNDropDesigner
 
         protected override bool UseImmediateContext => true;
 
-        protected override MouseButton Button => Main.GrabButton;
+        protected override CMouseData.Action Action => CMouseData.Action.Grab;
 
-        protected override bool IsPossible(ref InteractionData data) => Require<CPosition>(data.Interactor, out Position) && Require<CItemHolder>(data.Interactor, out Holder) && Perform(ref data, false);
+        protected override bool IsPossibleCondition(ref InteractionData data) => Require<CPosition>(data.Interactor, out Position) && Require<CItemHolder>(data.Interactor, out Holder) && Perform(ref data, false);
 
         protected override void Perform(ref InteractionData data)
         {
@@ -28,7 +25,7 @@ namespace KitchenDragNDropDesigner
 
         protected bool Perform(ref InteractionData data, bool should_act)
         {
-            bool isMouseInteraction = IsMouseButtonPressed;
+            bool isMouseInteraction = IsMouseButtonPressed || IsSharedActionBinding;
 
             CAttemptingInteraction attempt = data.Attempt;
             bool flagChangesDone = Holder.HeldItem == default ? PerformPickUp(data.Context, data.Interactor, ref attempt, in Position, should_act, OccupancyLayer.Default, isMouseInteraction) : PerformDrop(data.Context, data.Interactor, ref attempt, Holder, Position, should_act, isMouseInteraction);
@@ -111,9 +108,6 @@ namespace KitchenDragNDropDesigner
                 else
                     ctx.Set<CItemHolder>(player, new CItemHolder());
                 SetOccupant(position, heldItem);
-
-                if (Require<CPlayer>(player, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
-                    ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = flag4 && isMouseInteraction;
             }
             return flag5;
         }
@@ -170,15 +164,13 @@ namespace KitchenDragNDropDesigner
                     });
                     SetOccupant(interact.Location, new Entity(), appliance.Layer);
 
-                    if (Require(player, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
-                        ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = isMouseInteraction;
+                    if (isMouseInteraction)
+                        Set(occupant, default(CPickedUpByMouse));
                 }
                 performed = true;
                 interact.Result = should_act ? InteractionResult.Performed : InteractionResult.Possible;
             }
             return performed;
         }
-
-        protected override void OnCreateForCompiler() => base.OnCreateForCompiler();
     }
 }

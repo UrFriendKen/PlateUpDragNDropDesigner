@@ -12,9 +12,9 @@ namespace KitchenDragNDropDesigner
 
         protected override InteractionType RequiredType => InteractionType.Grab;
 
-        protected override MouseButton Button => Main.GrabButton;
+        protected override CMouseData.Action Action => CMouseData.Action.Grab;
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             return Require<CApplianceGhostChair>(data.Attempt.Target, out Ghost) &&
                 Require<CPosition>(data.Attempt.Target, out Position) &&

@@ -26,7 +26,7 @@ namespace KitchenDragNDropDesigner
 
         protected SMoney Money;
 
-        protected override MouseButton Button => Main.ActButton;
+        protected override CMouseData.Action Action => CMouseData.Action.Act;
 
         protected override bool AllowHold => true;
 
@@ -41,7 +41,7 @@ namespace KitchenDragNDropDesigner
             base.Initialise();
         }
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (Has<CBeingActedOn>(data.Target))
             {

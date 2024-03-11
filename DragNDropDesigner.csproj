@@ -36,6 +36,14 @@
 	  <None Remove="plateup_mod_metadata.json" />
 	  <None Remove="*.png" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="MouseLookAtAppliance.cs" />
+	  <Compile Remove="Patches\IsPossibleDisable_Patches.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="MouseLookAtAppliance.cs" />
+	  <None Include="Patches\IsPossibleDisable_Patches.cs" />
+	</ItemGroup>
   
 	<ItemGroup>
 		<PackageReference Include="MessagePack.Annotations" Version="2.4.59" />

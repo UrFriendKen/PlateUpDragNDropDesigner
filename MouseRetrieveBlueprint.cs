@@ -15,9 +15,9 @@ namespace KitchenDragNDropDesigner
 
         protected override InteractionType RequiredType => InteractionType.Grab;
 
-        protected override MouseButton Button => Main.BlueprintButton;
+        protected override CMouseData.Action Action => CMouseData.Action.StoreRetrieveBlueprint;
 
-        protected override bool IsPossible(ref InteractionData data)
+        protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (!Require<CItemHolder>(data.Interactor, out Holder))
             {
@@ -71,10 +71,12 @@ namespace KitchenDragNDropDesigner
             {
                 Holder = data.Interactor
             });
+            data.Context.Set(entity, default(CPickedUpByMouse));
             data.Context.Set(data.Interactor, new CItemHolder
             {
                 HeldItem = entity
             });
+
             data.Context.Set(data.Interactor, new CPerformedThisFrame());
             if (Store.HasBeenCopied)
             {
@@ -88,12 +90,10 @@ namespace KitchenDragNDropDesigner
                 Store.BlueprintID = 0;
             }
             Store.HasBeenMadeFree = false;
-            SetComponent(data.Target, Store);
+            data.Context.Set(data.Target, Store);
 
             data.Attempt.Result = InteractionResult.Performed;
 
-            if (Require<CPlayer>(data.Interactor, out CPlayer cPlayer) && MouseHelpers.IsKeyboardOrFirstLocalPlayer(cPlayer))
-                ManageApplianceGhostsOriginalLambdaBodyPatch.isPickedUpByMouse = true;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "1.0.7";
+        public const string MOD_VERSION = "1.1.1";
 
         internal const string MAINTAIN_ORIENTATION_ID = "meintainOrientation";
         internal const string GRAB_BUTTON_PREF_ID = "grabButton";
@@ -20,6 +20,7 @@ namespace KitchenDragNDropDesigner
         internal const string PING_BUTTON_PREF_ID = "pingButton";
         internal const string BLUEPRINT_BUTTON_PREF_ID = "blueprintButton";
         internal const string MISCELLANEOUS_BUTTON_PREF_ID = "miscButton";
+        internal const string ALLOW_MULTIPLAYER_PREF_ID = "allowMultiplayer";
 
         internal static PreferenceSystemManager PrefManager;
 
@@ -80,65 +81,74 @@ namespace KitchenDragNDropDesigner
             };
 
             PrefManager
-                .AddLabel("Drag N' Drop Controls")
+                .AddLabel("Drag N' Drop Designer")
                 .AddSpacer()
-                .AddLabel("Grab")
-                .AddOption<string>(
-                    GRAB_BUTTON_PREF_ID,
-                    MouseApplianceInteractionSystem.MouseButton.Left.ToString(),
-                    mouseButtons,
-                    mouseButtonTexts,
-                    delegate (string value)
-                    {
-                        UpdateButton(ref GrabButton, value);
-                    })
-                .AddLabel("Act")
-                .AddOption<string>(
-                    ACT_BUTTON_PREF_ID,
-                    MouseApplianceInteractionSystem.MouseButton.Right.ToString(),
-                    mouseButtons,
-                    mouseButtonTexts,
-                    delegate (string value)
-                    {
-                        UpdateButton(ref ActButton, value);
-                    })
-                .AddLabel("Ping")
-                .AddOption<string>(
-                    PING_BUTTON_PREF_ID,
-                    MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
-                    mouseButtons,
-                    mouseButtonTexts,
-                    delegate (string value)
-                    {
-                        UpdateButton(ref PingButton, value);
-                    })
-                .AddLabel("Store/Retrieve Blueprint")
-                .AddOption<string>(
-                    BLUEPRINT_BUTTON_PREF_ID,
-                    MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
-                    mouseButtons,
-                    mouseButtonTexts,
-                    delegate (string value)
-                    {
-                        UpdateButton(ref BlueprintButton, value);
-                    })
-                .AddLabel("Miscellaneous Action")
-                .AddOption<string>(
-                    MISCELLANEOUS_BUTTON_PREF_ID,
-                    MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
-                    mouseButtons,
-                    mouseButtonTexts,
-                    delegate (string value)
-                    {
-                        UpdateButton(ref MiscellaneousButton, value);
-                    })
-                .AddSpacer()
+                .AddLabel("Multiplayer Clients Mouse Input")
+                .AddOption<bool>(
+                    ALLOW_MULTIPLAYER_PREF_ID,
+                    false,
+                    new bool[] { false, true },
+                    new string[] { "Disallow", "Allowed" })
                 .AddLabel("Maintain Appliance Rotation")
                 .AddOption<bool>(
                     MAINTAIN_ORIENTATION_ID,
                     false,
                     new bool[] { false, true },
                     new string[] { "Disabled", "Enabled" })
+                .AddSubmenu("Customize Controls", "customizeControls")
+                    .AddLabel("Grab")
+                    .AddOption<string>(
+                        GRAB_BUTTON_PREF_ID,
+                        MouseApplianceInteractionSystem.MouseButton.Left.ToString(),
+                        mouseButtons,
+                        mouseButtonTexts,
+                        delegate (string value)
+                        {
+                            UpdateButton(ref GrabButton, value);
+                        })
+                    .AddLabel("Act")
+                    .AddOption<string>(
+                        ACT_BUTTON_PREF_ID,
+                        MouseApplianceInteractionSystem.MouseButton.Right.ToString(),
+                        mouseButtons,
+                        mouseButtonTexts,
+                        delegate (string value)
+                        {
+                            UpdateButton(ref ActButton, value);
+                        })
+                    .AddLabel("Ping")
+                    .AddOption<string>(
+                        PING_BUTTON_PREF_ID,
+                        MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
+                        mouseButtons,
+                        mouseButtonTexts,
+                        delegate (string value)
+                        {
+                            UpdateButton(ref PingButton, value);
+                        })
+                    .AddLabel("Store/Retrieve Blueprint")
+                    .AddOption<string>(
+                        BLUEPRINT_BUTTON_PREF_ID,
+                        MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
+                        mouseButtons,
+                        mouseButtonTexts,
+                        delegate (string value)
+                        {
+                            UpdateButton(ref BlueprintButton, value);
+                        })
+                    .AddLabel("Miscellaneous Action")
+                    .AddOption<string>(
+                        MISCELLANEOUS_BUTTON_PREF_ID,
+                        MouseApplianceInteractionSystem.MouseButton.Middle.ToString(),
+                        mouseButtons,
+                        mouseButtonTexts,
+                        delegate (string value)
+                        {
+                            UpdateButton(ref MiscellaneousButton, value);
+                        })
+                    .AddSpacer()
+                    .AddSpacer()
+                .SubmenuDone()
                 .AddSpacer()
                 .AddSpacer();
 
