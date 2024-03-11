@@ -43,10 +43,6 @@ namespace KitchenDragNDropDesigner
 
         protected override bool IsPossibleCondition(ref InteractionData data)
         {
-            if (Has<CBeingActedOn>(data.Target))
-            {
-                return false;
-            }
             if (!Require<CApplianceBlueprint>(data.Target, out Blueprint))
             {
                 return false;
@@ -103,7 +99,6 @@ namespace KitchenDragNDropDesigner
                 Set(data.Target, Duration);
                 Set<CPerformedThisFrame>(data.Target);
             }
-            data.Attempt.Result = InteractionResult.Performed;
         }
 
         private void Purchase(ref InteractionData data)

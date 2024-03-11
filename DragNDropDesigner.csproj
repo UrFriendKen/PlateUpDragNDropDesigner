@@ -37,12 +37,12 @@
 	  <None Remove="*.png" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Remove="LogInteractionAttempt.cs" />
 	  <Compile Remove="MouseLookAtAppliance.cs" />
-	  <Compile Remove="Patches\IsPossibleDisable_Patches.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Include="LogInteractionAttempt.cs" />
 	  <None Include="MouseLookAtAppliance.cs" />
-	  <None Include="Patches\IsPossibleDisable_Patches.cs" />
 	</ItemGroup>
   
 	<ItemGroup>

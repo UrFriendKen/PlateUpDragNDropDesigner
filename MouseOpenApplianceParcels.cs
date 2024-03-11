@@ -23,7 +23,6 @@ namespace KitchenDragNDropDesigner
                 ID = Letter.ApplianceID
             });
             data.Context.Set(entity, new CPosition(Position));
-            data.Attempt.Result = InteractionResult.Performed;
         }
     }
 }

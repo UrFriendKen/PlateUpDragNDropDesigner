@@ -68,7 +68,6 @@ namespace KitchenDragNDropDesigner
                 Store.HasBeenCopied = false;
                 Store.HasBeenMadeFree = false;
                 data.Context.Set(data.Target, Store);
-                data.Attempt.Result = InteractionResult.Performed;
             }
             else if (!Store.HasBeenCopied && Store.Price == Sale.Price && Store.ApplianceID == Blueprint.Appliance)
             {
@@ -76,7 +75,6 @@ namespace KitchenDragNDropDesigner
                 data.Context.Set(data.Interactor, default(CItemHolder));
                 Store.HasBeenCopied = true;
                 data.Context.Set(data.Target, Store);
-                data.Attempt.Result = InteractionResult.Performed;
             }
         }
     }

@@ -1,6 +1,4 @@
 ﻿using Kitchen;
-using KitchenDragNDropDesigner.Helpers;
-using KitchenDragNDropDesigner.Patches;
 using Unity.Entities;
 
 namespace KitchenDragNDropDesigner
@@ -91,9 +89,6 @@ namespace KitchenDragNDropDesigner
             }
             Store.HasBeenMadeFree = false;
             data.Context.Set(data.Target, Store);
-
-            data.Attempt.Result = InteractionResult.Performed;
-
         }
     }
 }

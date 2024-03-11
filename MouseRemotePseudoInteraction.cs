@@ -42,6 +42,11 @@ namespace KitchenDragNDropDesigner
             for (int i = 0; i < entities.Length; i++)
             {
                 Entity entity = entities[i];
+
+                if (!Require(entity, out CAttemptingInteraction playerInteractionAttempt) &&
+                    playerInteractionAttempt.Result == InteractionResult.Performed)
+                    continue;
+
                 CMouseData mouseData = mouseDatas[i];
                 CPosition position = mouseData.Position;
 
@@ -102,6 +107,10 @@ namespace KitchenDragNDropDesigner
                         InteractAction = ButtonState.Held
                     }
                 });
+
+                playerInteractionAttempt.Result = InteractionResult.Performed;
+                playerInteractionAttempt.PerformedBy = this;
+                Set(entity, playerInteractionAttempt);
             }
         }
     }

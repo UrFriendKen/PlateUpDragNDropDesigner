@@ -74,6 +74,12 @@ namespace KitchenDragNDropDesigner.Views
                         mouseData.Ping = GetModifiedCachedButtonState(oldMouseData.Ping);
                         mouseData.StoreRetrieveBlueprint = GetModifiedCachedButtonState(oldMouseData.StoreRetrieveBlueprint);
                         mouseData.Miscellaneous = GetModifiedCachedButtonState(oldMouseData.Miscellaneous);
+
+                        mouseData.GrabPositionOverride = oldMouseData.GrabPositionOverride;
+                        mouseData.ActPositionOverride = oldMouseData.ActPositionOverride;
+                        mouseData.PingPositionOverride = oldMouseData.PingPositionOverride;
+                        mouseData.StoreRetrieveBlueprintPositionOverride = oldMouseData.StoreRetrieveBlueprintPositionOverride;
+                        mouseData.MiscellaneousPositionOverride = oldMouseData.MiscellaneousPositionOverride;
                     }
                     ApplyUpdates(view, HandleResponse);
                     Set(entity, mouseData);
@@ -217,7 +223,7 @@ namespace KitchenDragNDropDesigner.Views
 
         ButtonState GetButtonState(string prefKey)
         {
-            bool isPressed = MouseHelpers.IsMouseButtonPressed(prefKey) && !MouseHelpers.IsBindingConflict(PlayerID, prefKey);
+            bool isPressed = MouseHelpers.IsMouseButtonPressed(prefKey);// && !MouseHelpers.IsBindingConflict(PlayerID, prefKey);
             ButtonState old = _cache.TryGetValue(prefKey, out ButtonState cachedState) ? cachedState : ButtonState.Up;
             ButtonState buttonState = ResolveButtonState(isPressed, old);
             _cache[prefKey] = buttonState;

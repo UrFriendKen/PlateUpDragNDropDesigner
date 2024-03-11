@@ -56,10 +56,10 @@ namespace KitchenDragNDropDesigner
 
         protected sealed override bool IsPossible(ref InteractionData data)
         {
-            //if (!Require(data.Interactor, out CMouseData mouseData) ||
-            //    !mouseData.Active)
-            //    return false;
-
+            if (!Require(data.Interactor, out CMouseData mouseData) ||
+                !mouseData.Active ||
+                (IsMouseButtonActive && IsSharedActionBinding && !AllowHold))
+                return false;
             return IsPossibleCondition(ref data);
         }
 
@@ -73,7 +73,17 @@ namespace KitchenDragNDropDesigner
                 _mouseData = mouseData;
             }
             UpdateInteractionData(ref interaction_data);
-            return base.ShouldAct(ref interaction_data);
+
+            if ((RequiredType == interaction_data.Attempt.Type || (AllowActOrGrab && (interaction_data.Attempt.Type == InteractionType.Act || interaction_data.Attempt.Type == InteractionType.Grab))) &&
+                (!RequirePress || AllowHold || !interaction_data.Attempt.IsHeld))
+            {
+                if (RequireHold)
+                {
+                    return interaction_data.Attempt.IsHeld;
+                }
+                return true;
+            }
+            return false;
         }
 
         protected virtual void UpdateInteractionData(ref InteractionData interaction_data)
@@ -84,10 +94,10 @@ namespace KitchenDragNDropDesigner
             if (IsMouseButtonActive)
             {
                 interaction_data.Attempt.Type = RequiredType;
-                UpdateMouseTarget(ref interaction_data, OccupancyLayer.Default);
+                interaction_data.Attempt.IsHeld = IsMouseButtonHeld;
             }
 
-            if (RequiredType == InteractionType.Look || IsMouseButtonActive || (interaction_data.Attempt.Type != InteractionType.Look && IsSharedActionBinding))
+            if (RequiredType == InteractionType.Look || IsMouseButtonActive || IsSharedActionBinding)
             {
                 interaction_data.Attempt.Location = _mouseData.Position;
                 UpdateMouseTarget(ref interaction_data, OccupancyLayer.Default);

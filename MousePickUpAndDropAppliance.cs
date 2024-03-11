@@ -25,7 +25,7 @@ namespace KitchenDragNDropDesigner
 
         protected bool Perform(ref InteractionData data, bool should_act)
         {
-            bool isMouseInteraction = IsMouseButtonPressed || IsSharedActionBinding;
+            bool isMouseInteraction = IsMouseButtonActive || IsSharedActionBinding;
 
             CAttemptingInteraction attempt = data.Attempt;
             bool flagChangesDone = Holder.HeldItem == default ? PerformPickUp(data.Context, data.Interactor, ref attempt, in Position, should_act, OccupancyLayer.Default, isMouseInteraction) : PerformDrop(data.Context, data.Interactor, ref attempt, Holder, Position, should_act, isMouseInteraction);
@@ -49,7 +49,7 @@ namespace KitchenDragNDropDesigner
             includeOutside.Encapsulate(GetFrontDoor() + new Vector3(0f, 0f, -3f));
             includeOutside.Expand(0.5f);
 
-            if ((!CanReach((Vector3)pos, interact.Location) && !isMouseInteraction) || GetFrontDoor().IsSameTile(interact.Location) || GetFrontDoor(true).IsSameTile(interact.Location) || !includeOutside.Contains(interact.Location))
+            if ((!isMouseInteraction && !CanReach((Vector3)pos, interact.Location)) || GetFrontDoor().IsSameTile(interact.Location) || GetFrontDoor(true).IsSameTile(interact.Location) || !includeOutside.Contains(interact.Location))
                 return false;
             CLayoutRoomTile tile = GetTile(interact.Location);
             Vector3 position = interact.Location.Rounded();
@@ -123,10 +123,9 @@ namespace KitchenDragNDropDesigner
         {
             EntityManager entityManager = EntityManager;
             bool performed = false;
-            Entity occupant = default;
-            if (!CanReach((Vector3)pos, interact.Location) && !isMouseInteraction)
+            if (!isMouseInteraction && !CanReach((Vector3)pos, interact.Location))
                 return performed;
-            occupant = ((layer != 0) ? GetOccupant(interact.Location, layer) : GetPrimaryOccupant(interact.Location));
+            Entity occupant = ((layer != 0) ? GetOccupant(interact.Location, layer) : GetPrimaryOccupant(interact.Location));
             
             if (occupant == default)
             {
@@ -168,7 +167,6 @@ namespace KitchenDragNDropDesigner
                         Set(occupant, default(CPickedUpByMouse));
                 }
                 performed = true;
-                interact.Result = should_act ? InteractionResult.Performed : InteractionResult.Possible;
             }
             return performed;
         }
