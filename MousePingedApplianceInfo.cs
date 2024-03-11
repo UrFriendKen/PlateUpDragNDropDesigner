@@ -7,13 +7,11 @@ namespace KitchenDragNDropDesigner
     {
         private int ApplianceID;
         protected override InteractionType RequiredType => InteractionType.Notify;
-        protected override InteractionMode RequiredMode => InteractionMode.Appliances;
         protected override CMouseData.Action Action => CMouseData.Action.Ping;
 
         protected override bool IsPossibleCondition(ref InteractionData data)
         {
             ApplianceID = 0;
-            if (data.Target != default)
             if (Require<CApplianceBlueprint>(data.Target, out CApplianceBlueprint comp))
             {
                 ApplianceID = comp.Appliance;

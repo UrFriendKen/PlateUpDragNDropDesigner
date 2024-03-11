@@ -12,7 +12,7 @@ namespace KitchenDragNDropDesigner
 {
     internal class MouseRemotePseudoInteraction : NightSystem, IModSystem
     {
-        private struct CLinkedInteractionProxy : IComponentData, IModComponent
+        public struct CLinkedInteractionProxy : IComponentData, IModComponent
         {
             public Entity Proxy;
         }

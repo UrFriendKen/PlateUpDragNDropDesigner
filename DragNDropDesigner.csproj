@@ -38,11 +38,9 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Remove="LogInteractionAttempt.cs" />
-	  <Compile Remove="MouseLookAtAppliance.cs" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Include="LogInteractionAttempt.cs" />
-	  <None Include="MouseLookAtAppliance.cs" />
 	</ItemGroup>
   
 	<ItemGroup>
