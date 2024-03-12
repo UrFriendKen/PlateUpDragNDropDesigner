@@ -1,10 +1,12 @@
 ﻿using Controllers;
 using Kitchen;
+using Kitchen.NetworkSupport;
 using KitchenDragNDropDesigner.Helpers;
 using KitchenMods;
 using MessagePack;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -18,12 +20,32 @@ namespace KitchenDragNDropDesigner.Views
         {
             EntityQuery Players;
 
-            HashSet<int> InputSources = new HashSet<int>();
+            List<int> InputSources = new List<int>();
             
             protected override void Initialise()
             {
                 base.Initialise();
                 Players = GetEntityQuery(typeof(CLinkedView), typeof(CPlayer), typeof(CMouseData));
+            }
+
+            List<(int id, ConnectionType connection, int index)> _playerConnectionTypes = new List<(int id, ConnectionType connection, int index)>();
+            private IEnumerable<int> GetOrderedPlayersIndex()
+            {
+                using NativeArray<CPlayer> players = Players.ToComponentDataArray<CPlayer>(Allocator.Temp);
+                _playerConnectionTypes.Clear();
+                for (int i = 0; i < players.Length; i++)
+                {
+                    CPlayer cPlayer = players[i];
+
+                    bool hasNetworkPeerInfo = Session.PeerInformation.TryGetValue(cPlayer.InputSource, out NetworkPeerInformation networkPeerInfo);
+                    ConnectionType connection = (hasNetworkPeerInfo ? networkPeerInfo.Connection : ConnectionType.Unknown);
+                    _playerConnectionTypes.Add((cPlayer.ID, connection, i));
+                }
+                return _playerConnectionTypes
+                    .OrderBy(item => item.id == 0 ? 1 : 0)
+                    .ThenBy(item => item.connection)
+                    .ThenBy(item => item.id)
+                    .Select(item => item.index);
             }
 
             protected override void OnUpdate()
@@ -36,7 +58,7 @@ namespace KitchenDragNDropDesigner.Views
                 bool allowMultiplayer = Main.PrefManager.Get<bool>(Main.ALLOW_MULTIPLAYER_PREF_ID);
 
                 InputSources.Clear();
-                for (int i = 0; i < entities.Length; i++)
+                foreach (int i in GetOrderedPlayersIndex())
                 {
                     Entity entity = entities[i];
                     CLinkedView view = views[i];
@@ -64,23 +86,22 @@ namespace KitchenDragNDropDesigner.Views
                                 return ButtonState.Up;
                         }
                     }
-                    
-                    if (Require(entity, out CMouseData oldMouseData))
-                    {
-                        mouseData.Active = oldMouseData.Active;
-                        mouseData.Position = oldMouseData.Position;
-                        mouseData.Grab = GetModifiedCachedButtonState(oldMouseData.Grab);
-                        mouseData.Act = GetModifiedCachedButtonState(oldMouseData.Act);
-                        mouseData.Ping = GetModifiedCachedButtonState(oldMouseData.Ping);
-                        mouseData.StoreRetrieveBlueprint = GetModifiedCachedButtonState(oldMouseData.StoreRetrieveBlueprint);
-                        mouseData.Miscellaneous = GetModifiedCachedButtonState(oldMouseData.Miscellaneous);
 
-                        mouseData.GrabPositionOverride = oldMouseData.GrabPositionOverride;
-                        mouseData.ActPositionOverride = oldMouseData.ActPositionOverride;
-                        mouseData.PingPositionOverride = oldMouseData.PingPositionOverride;
-                        mouseData.StoreRetrieveBlueprintPositionOverride = oldMouseData.StoreRetrieveBlueprintPositionOverride;
-                        mouseData.MiscellaneousPositionOverride = oldMouseData.MiscellaneousPositionOverride;
-                    }
+                    CMouseData oldMouseData = mouseDatas[i];
+                    mouseData.Active = oldMouseData.Active;
+                    mouseData.Position = oldMouseData.Position;
+                    mouseData.Grab = GetModifiedCachedButtonState(oldMouseData.Grab);
+                    mouseData.Act = GetModifiedCachedButtonState(oldMouseData.Act);
+                    mouseData.Ping = GetModifiedCachedButtonState(oldMouseData.Ping);
+                    mouseData.StoreRetrieveBlueprint = GetModifiedCachedButtonState(oldMouseData.StoreRetrieveBlueprint);
+                    mouseData.Miscellaneous = GetModifiedCachedButtonState(oldMouseData.Miscellaneous);
+
+                    mouseData.GrabPositionOverride = oldMouseData.GrabPositionOverride;
+                    mouseData.ActPositionOverride = oldMouseData.ActPositionOverride;
+                    mouseData.PingPositionOverride = oldMouseData.PingPositionOverride;
+                    mouseData.StoreRetrieveBlueprintPositionOverride = oldMouseData.StoreRetrieveBlueprintPositionOverride;
+                    mouseData.MiscellaneousPositionOverride = oldMouseData.MiscellaneousPositionOverride;
+
                     ApplyUpdates(view, HandleResponse);
                     Set(entity, mouseData);
 
