@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Entities;
+using static KitchenLib.UI.GenericPopupManager;
 
 namespace KitchenDragNDropDesigner
 {
@@ -22,12 +23,22 @@ namespace KitchenDragNDropDesigner
 
         EntityQuery Players;
 
+        EntityQuery Popups;
+
+        EntityQuery InteractionProxies;
+
+        EntityQuery LinkedInteractionProxies;
+
         MethodInfo HasSRerollTrigger;
 
         protected override void Initialise()
         {
             base.Initialise();
             Players = GetEntityQuery(typeof(CPlayer), typeof(CMouseData));
+            Popups = GetEntityQuery(typeof(CPopup));
+
+            InteractionProxies = GetEntityQuery(typeof(CInteractionProxyMarker));
+            LinkedInteractionProxies = GetEntityQuery(typeof(CPlayer), typeof(CLinkedInteractionProxy));
 
             Type sRerollTriggerType = typeof(CreateRerollTrigger).GetNestedType("SRerollTrigger", BindingFlags.NonPublic);
             MethodInfo hasMethod = typeof(GenericSystemBase).GetMethod("Has", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(Entity) }, null);
@@ -36,6 +47,13 @@ namespace KitchenDragNDropDesigner
 
         protected override void OnUpdate()
         {
+            if (!Popups.IsEmpty)
+            {
+                EntityManager.DestroyEntity(InteractionProxies);
+                EntityManager.RemoveComponent<CLinkedInteractionProxy>(LinkedInteractionProxies);
+                return;
+            }
+
             using NativeArray<Entity> entities = Players.ToEntityArray(Allocator.Temp);
             using NativeArray<CMouseData> mouseDatas = Players.ToComponentDataArray<CMouseData>(Allocator.Temp);
 
