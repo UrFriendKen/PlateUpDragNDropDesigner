@@ -12,8 +12,9 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "1.1.3";
+        public const string MOD_VERSION = "1.1.4";
 
+        internal const string HOST_MANIPULATE_HQ_CRATES_ID = "hostManipulateHQCrates";
         internal const string MAINTAIN_ORIENTATION_ID = "meintainOrientation";
         internal const string GRAB_BUTTON_PREF_ID = "grabButton";
         internal const string ACT_BUTTON_PREF_ID = "actButton";
@@ -95,6 +96,13 @@ namespace KitchenDragNDropDesigner
                     false,
                     new bool[] { false, true },
                     new string[] { "Disabled", "Enabled" })
+                .AddLabel("Host Can Manipulate HQ Crates")
+                .AddOption<bool>(
+                    HOST_MANIPULATE_HQ_CRATES_ID,
+                    false,
+                    new bool[] { false, true },
+                    new string[] { "Disabled", "Enabled" })
+                .AddSpacer()
                 .AddSubmenu("Customize Controls", "customizeControls")
                     .AddLabel("Grab")
                     .AddOption<string>(
