@@ -55,6 +55,7 @@ namespace KitchenDragNDropDesigner.Views
                 using NativeArray<CPlayer> players = Players.ToComponentDataArray<CPlayer>(Allocator.Temp);
                 using NativeArray<CMouseData> mouseDatas = Players.ToComponentDataArray<CMouseData>(Allocator.Temp);
 
+                bool allowLocal = Main.PrefManager.Get<bool>(Main.ALLOW_LOCAL_PREF_ID);
                 bool allowMultiplayer = Main.PrefManager.Get<bool>(Main.ALLOW_MULTIPLAYER_PREF_ID);
 
                 InputSources.Clear();
@@ -109,6 +110,7 @@ namespace KitchenDragNDropDesigner.Views
                     void HandleResponse(ResponseData responseData)
                     {
                         if (!allowMultiplayer && !isHostPlayer ||
+                            !allowLocal && isHostPlayer ||
                             mouseData.Grab == ButtonState.Pressed ||
                             mouseData.Act == ButtonState.Pressed ||
                             mouseData.Ping == ButtonState.Pressed ||

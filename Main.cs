@@ -12,7 +12,7 @@ namespace KitchenDragNDropDesigner
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.DragNDropDesigner";
         public const string MOD_NAME = "Drag N' Drop Designer";
-        public const string MOD_VERSION = "1.1.4";
+        public const string MOD_VERSION = "1.1.5";
 
         internal const string HOST_MANIPULATE_HQ_CRATES_ID = "hostManipulateHQCrates";
         internal const string MAINTAIN_ORIENTATION_ID = "meintainOrientation";
@@ -21,6 +21,7 @@ namespace KitchenDragNDropDesigner
         internal const string PING_BUTTON_PREF_ID = "pingButton";
         internal const string BLUEPRINT_BUTTON_PREF_ID = "blueprintButton";
         internal const string MISCELLANEOUS_BUTTON_PREF_ID = "miscButton";
+        internal const string ALLOW_LOCAL_PREF_ID = "allowLocal";
         internal const string ALLOW_MULTIPLAYER_PREF_ID = "allowMultiplayer";
 
         internal static PreferenceSystemManager PrefManager;
@@ -84,6 +85,12 @@ namespace KitchenDragNDropDesigner
             PrefManager
                 .AddLabel("Drag N' Drop Designer")
                 .AddSpacer()
+                .AddLabel("Local Mouse Input")
+                .AddOption<bool>(
+                    ALLOW_LOCAL_PREF_ID,
+                    true,
+                    new bool[] { false, true },
+                    new string[] { "Disallow", "Allowed" })
                 .AddLabel("Multiplayer Clients Mouse Input")
                 .AddOption<bool>(
                     ALLOW_MULTIPLAYER_PREF_ID,
