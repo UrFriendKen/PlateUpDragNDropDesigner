@@ -31,7 +31,6 @@ namespace KitchenDragNDropDesigner
         protected bool IsMouseButtonPressed => _mouseData.GetButtonState(Action) == ButtonState.Pressed || IsMouseButtonHeld;
         protected bool IsMouseButtonHeld => _mouseData.GetButtonState(Action) == ButtonState.Held;
         protected bool IsMouseButtonActive => IsMouseButtonPressed && (AllowHold || !IsMouseButtonHeld);
-        protected bool IsSharedActionBinding => _mouseData.ShouldOverridePosition(Action);
 
         protected override bool BeforeRun()
         {
@@ -57,8 +56,7 @@ namespace KitchenDragNDropDesigner
         protected sealed override bool IsPossible(ref InteractionData data)
         {
             if (!Require(data.Interactor, out CMouseData mouseData) ||
-                !mouseData.Active ||
-                (IsMouseButtonActive && IsSharedActionBinding && !AllowHold))
+                !mouseData.Active)
                 return false;
             return IsPossibleCondition(ref data);
         }
@@ -97,7 +95,7 @@ namespace KitchenDragNDropDesigner
                 interaction_data.Attempt.IsHeld = IsMouseButtonHeld;
             }
 
-            if (RequiredType == InteractionType.Look || IsMouseButtonActive || IsSharedActionBinding)
+            if (RequiredType == InteractionType.Look || IsMouseButtonActive)
             {
                 interaction_data.Attempt.Location = _mouseData.Position;
                 UpdateMouseTarget(ref interaction_data, OccupancyLayer.Default);

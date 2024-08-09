@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Entities;
-using static KitchenLib.UI.GenericPopupManager;
 
 namespace KitchenDragNDropDesigner
 {

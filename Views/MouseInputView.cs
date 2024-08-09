@@ -55,9 +55,6 @@ namespace KitchenDragNDropDesigner.Views
                 using NativeArray<CPlayer> players = Players.ToComponentDataArray<CPlayer>(Allocator.Temp);
                 using NativeArray<CMouseData> mouseDatas = Players.ToComponentDataArray<CMouseData>(Allocator.Temp);
 
-                bool allowLocal = Main.PrefManager.Get<bool>(Main.ALLOW_LOCAL_PREF_ID);
-                bool allowMultiplayer = Main.PrefManager.Get<bool>(Main.ALLOW_MULTIPLAYER_PREF_ID);
-
                 InputSources.Clear();
                 foreach (int i in GetOrderedPlayersIndex())
                 {
@@ -97,21 +94,13 @@ namespace KitchenDragNDropDesigner.Views
                     mouseData.StoreRetrieveBlueprint = GetModifiedCachedButtonState(oldMouseData.StoreRetrieveBlueprint);
                     mouseData.Miscellaneous = GetModifiedCachedButtonState(oldMouseData.Miscellaneous);
 
-                    mouseData.GrabPositionOverride = oldMouseData.GrabPositionOverride;
-                    mouseData.ActPositionOverride = oldMouseData.ActPositionOverride;
-                    mouseData.PingPositionOverride = oldMouseData.PingPositionOverride;
-                    mouseData.StoreRetrieveBlueprintPositionOverride = oldMouseData.StoreRetrieveBlueprintPositionOverride;
-                    mouseData.MiscellaneousPositionOverride = oldMouseData.MiscellaneousPositionOverride;
-
                     ApplyUpdates(view, HandleResponse);
                     Set(entity, mouseData);
 
 
                     void HandleResponse(ResponseData responseData)
                     {
-                        if (!allowMultiplayer && !isHostPlayer ||
-                            !allowLocal && isHostPlayer ||
-                            mouseData.Grab == ButtonState.Pressed ||
+                        if (mouseData.Grab == ButtonState.Pressed ||
                             mouseData.Act == ButtonState.Pressed ||
                             mouseData.Ping == ButtonState.Pressed ||
                             mouseData.StoreRetrieveBlueprint == ButtonState.Pressed ||
@@ -126,13 +115,7 @@ namespace KitchenDragNDropDesigner.Views
                             Act = responseData.Act,
                             Ping = responseData.Ping,
                             StoreRetrieveBlueprint = responseData.StoreRetrieveBlueprint,
-                            Miscellaneous = responseData.Miscellaneous,
-
-                            GrabPositionOverride = responseData.GrabPositionOverride,
-                            ActPositionOverride = responseData.ActPositionOverride,
-                            PingPositionOverride = responseData.PingPositionOverride,
-                            StoreRetrieveBlueprintPositionOverride = responseData.StoreRetrieveBlueprintPositionOverride,
-                            MiscellaneousPositionOverride = responseData.MiscellaneousPositionOverride,
+                            Miscellaneous = responseData.Miscellaneous
                         };
                     }
                 }
@@ -166,12 +149,6 @@ namespace KitchenDragNDropDesigner.Views
             [Key(4)] public ButtonState Ping;
             [Key(5)] public ButtonState StoreRetrieveBlueprint;
             [Key(6)] public ButtonState Miscellaneous;
-
-            [Key(7)] public bool GrabPositionOverride;
-            [Key(8)] public bool ActPositionOverride;
-            [Key(9)] public bool PingPositionOverride;
-            [Key(10)] public bool StoreRetrieveBlueprintPositionOverride;
-            [Key(11)] public bool MiscellaneousPositionOverride;
         }
 
         int PlayerID = 0;
@@ -188,7 +165,25 @@ namespace KitchenDragNDropDesigner.Views
         Action<IResponseData, Type> Callback;
         public void SetCallback(Action<IResponseData, Type> callback) => Callback = callback;
 
-        private Dictionary<string, ButtonState> _cache = new Dictionary<string, ButtonState>();
+        private Dictionary<Action, ButtonState> _cache = new Dictionary<Action, ButtonState>();
+
+        private static readonly Dictionary<Action, MouseApplianceInteractionSystem.MouseButton> _mapping = new Dictionary<Action, MouseApplianceInteractionSystem.MouseButton>()
+        {
+            { Action.Grab, MouseApplianceInteractionSystem.MouseButton.Left },
+            { Action.Act, MouseApplianceInteractionSystem.MouseButton.Right },
+            { Action.Ping, MouseApplianceInteractionSystem.MouseButton.Middle },
+            { Action.StoreRetrieveBlueprint, MouseApplianceInteractionSystem.MouseButton.Middle },
+            { Action.Miscellaneous, MouseApplianceInteractionSystem.MouseButton.Middle },
+        };
+
+        private enum Action
+        {
+            Grab,
+            Act,
+            Ping,
+            StoreRetrieveBlueprint,
+            Miscellaneous
+        }
 
         float LastUpdateTime = 0f;
 
@@ -221,17 +216,11 @@ namespace KitchenDragNDropDesigner.Views
                 {
                     Active = true,
                     Position = MouseHelpers.MousePlanePos(),
-                    Grab = GetButtonState(Main.GRAB_BUTTON_PREF_ID),
-                    Act = GetButtonState(Main.ACT_BUTTON_PREF_ID),
-                    Ping = GetButtonState(Main.PING_BUTTON_PREF_ID),
-                    StoreRetrieveBlueprint = GetButtonState(Main.BLUEPRINT_BUTTON_PREF_ID),
-                    Miscellaneous = GetButtonState(Main.MISCELLANEOUS_BUTTON_PREF_ID),
-
-                    GrabPositionOverride = MouseHelpers.IsBindingConflict(PlayerID, Main.GRAB_BUTTON_PREF_ID),
-                    ActPositionOverride = MouseHelpers.IsBindingConflict(PlayerID, Main.ACT_BUTTON_PREF_ID),
-                    PingPositionOverride = MouseHelpers.IsBindingConflict(PlayerID, Main.PING_BUTTON_PREF_ID),
-                    StoreRetrieveBlueprintPositionOverride = MouseHelpers.IsBindingConflict(PlayerID, Main.BLUEPRINT_BUTTON_PREF_ID),
-                    MiscellaneousPositionOverride = MouseHelpers.IsBindingConflict(PlayerID, Main.MISCELLANEOUS_BUTTON_PREF_ID),
+                    Grab = GetButtonState(Action.Grab),
+                    Act = GetButtonState(Action.Act),
+                    Ping = GetButtonState(Action.Ping),
+                    StoreRetrieveBlueprint = GetButtonState(Action.StoreRetrieveBlueprint),
+                    Miscellaneous = GetButtonState(Action.Miscellaneous)
                 }, typeof(ResponseData));
                 return;
             }
@@ -244,12 +233,12 @@ namespace KitchenDragNDropDesigner.Views
             }
         }
 
-        ButtonState GetButtonState(string prefKey)
+        ButtonState GetButtonState(Action action)
         {
-            bool isPressed = MouseHelpers.IsMouseButtonPressed(prefKey);// && !MouseHelpers.IsBindingConflict(PlayerID, prefKey);
-            ButtonState old = _cache.TryGetValue(prefKey, out ButtonState cachedState) ? cachedState : ButtonState.Up;
+            bool isPressed = MouseHelpers.IsMouseButtonPressed(_mapping[action]);
+            ButtonState old = _cache.TryGetValue(action, out ButtonState cachedState) ? cachedState : ButtonState.Up;
             ButtonState buttonState = ResolveButtonState(isPressed, old);
-            _cache[prefKey] = buttonState;
+            _cache[action] = buttonState;
             return buttonState;
         }
 

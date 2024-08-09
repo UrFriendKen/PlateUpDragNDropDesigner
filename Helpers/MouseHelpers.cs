@@ -66,21 +66,6 @@ namespace KitchenDragNDropDesigner.Helpers
             return false;
         }
 
-        internal static bool TryGetBoundMouseButton(string prefKey, out MouseApplianceInteractionSystem.MouseButton button)
-        {
-            return Enum.TryParse(Main.PrefManager.Get<string>(prefKey), true, out button);
-        }
-
-        internal static bool IsMouseButtonPressed(string prefKey)
-        {
-            if (!TryGetBoundMouseButton(prefKey, out MouseApplianceInteractionSystem.MouseButton button))
-            {
-                Main.LogError($"Failed to parse {prefKey} to {typeof(MouseApplianceInteractionSystem.MouseButton)}.");
-                return false;
-            }
-            return IsMouseButtonPressed(button);
-        }
-
         internal static bool IsMouseButtonPressed(MouseApplianceInteractionSystem.MouseButton button)
         {
             switch (button)
@@ -98,20 +83,6 @@ namespace KitchenDragNDropDesigner.Helpers
                 default:
                     return false;
             }
-        }
-
-        static Dictionary<string, string> _prefKeyToAction = new Dictionary<string, string>()
-        {
-            { Main.GRAB_BUTTON_PREF_ID, Controls.Interact1 },
-            { Main.ACT_BUTTON_PREF_ID, Controls.Interact2 },
-            { Main.PING_BUTTON_PREF_ID, Controls.Interact4 }
-        };
-
-        internal static bool IsBindingConflict(int playerID, string prefKey)
-        {
-            if (!_prefKeyToAction.TryGetValue(prefKey, out string action) || !TryGetBoundMouseButton(prefKey, out MouseApplianceInteractionSystem.MouseButton button))
-                return false;
-            return IsBindingConflict(playerID, button, action);
         }
 
         internal static bool IsBindingConflict(int playerID, MouseApplianceInteractionSystem.MouseButton button, string action)

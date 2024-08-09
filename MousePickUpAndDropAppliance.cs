@@ -25,7 +25,7 @@ namespace KitchenDragNDropDesigner
 
         protected bool Perform(ref InteractionData data, bool should_act)
         {
-            bool isMouseInteraction = IsMouseButtonActive || IsSharedActionBinding;
+            bool isMouseInteraction = IsMouseButtonActive;
 
             CAttemptingInteraction attempt = data.Attempt;
             bool flagChangesDone = Holder.HeldItem == default ? PerformPickUp(data.Context, data.Interactor, ref attempt, in Position, should_act, OccupancyLayer.Default, isMouseInteraction) : PerformDrop(data.Context, data.Interactor, ref attempt, Holder, Position, should_act, isMouseInteraction);
@@ -149,13 +149,6 @@ namespace KitchenDragNDropDesigner
                     {
                         Holder = player
                     });
-                    if (isMouseInteraction && ctx.Require(occupant, out CPosition occupantPos))
-                    {
-                        ctx.Set(occupant, new CCachedRotation()
-                        {
-                            Rotation = occupantPos.Rotation
-                        });
-                    }
                     ctx.Set(occupant, CPosition.Hidden);
                     ctx.Set(player, new CItemHolder()
                     {

@@ -9,7 +9,6 @@ namespace KitchenDragNDropDesigner
     public class SaveComponentStripper : GenericSystemBase, IModSystem
     {
         EntityQuery MouseDatas;
-        EntityQuery CachedRotations;
         EntityQuery PickedUpByMouse;
         EntityQuery PurchaseProgress;
         EntityQuery PerformedThisFrame;
@@ -19,7 +18,6 @@ namespace KitchenDragNDropDesigner
         {
             base.Initialise();
             MouseDatas = GetEntityQuery(typeof(CMouseData));
-            CachedRotations = GetEntityQuery(typeof(CCachedRotation));
             PickedUpByMouse = GetEntityQuery(typeof(CPickedUpByMouse));
             PurchaseProgress = GetEntityQuery(typeof(CPurchaseProgress));
             PerformedThisFrame = GetEntityQuery(typeof(CPerformedThisFrame));
@@ -38,7 +36,6 @@ namespace KitchenDragNDropDesigner
                 return;
 
             EntityManager.RemoveComponent<CMouseData>(MouseDatas);
-            EntityManager.RemoveComponent<CCachedRotation>(CachedRotations);
             EntityManager.RemoveComponent<CPickedUpByMouse>(PickedUpByMouse);
             EntityManager.RemoveComponent<CPurchaseProgress>(PurchaseProgress);
             EntityManager.RemoveComponent<CPerformedThisFrame>(PerformedThisFrame);

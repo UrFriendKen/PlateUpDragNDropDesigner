@@ -21,8 +21,7 @@ namespace KitchenDragNDropDesigner
         protected override bool IsPossibleCondition(ref InteractionData data)
         {
             if (!Require(data.Interactor, out CPlayer player) ||
-                player.InputSource != InputSourceIdentifier.Identifier ||
-                !Main.PrefManager.Get<bool>(Main.HOST_MANIPULATE_HQ_CRATES_ID))
+                player.InputSource != InputSourceIdentifier.Identifier)
                 return false;
 
             if (!Require(data.Target, out TargetHolder) ||
